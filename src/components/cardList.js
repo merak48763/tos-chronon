@@ -9,14 +9,14 @@ const CardListContainer = styled.div`
   flex-flow: row wrap;
 `;
 
-const CardList = () => {
-  const {ready, cards} = useChrononInfo();
+const CardList = ({filteredCards}) => {
+  const {ready} = useChrononInfo();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [displayingId, setDisplayingId] = useState(1);
 
   return ready && (<>
     <CardListContainer>
-      {cards.map(c => (
+      {filteredCards.map(c => (
         <CardItem key={c.id} id={c.id} sid={c.series} scid={c.scid} onClick={() => {
           setDisplayingId(c.id);
           setIsDialogOpen(true);

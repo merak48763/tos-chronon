@@ -36,7 +36,8 @@ const InfoDialog = ({open, onClose, chrononId}) => {
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>
-        {displayingCard.name}
+        <Typography variant="h6" component="p">{displayingCard.name}</Typography>
+        <Typography variant="caption" component="p">{displayingCard.nameEn}</Typography>
       </DialogTitle>
       <DialogContent dividers>
         <Typography>系列：{getSeriesNameById(displayingCard.series)}</Typography>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 import axios from "axios";
+import { filter } from "./filterEngine";
 
 const ChrononInfoContext = createContext({});
 
@@ -9,6 +10,9 @@ const ChrononInfoProvider = ({children}) => {
   const [series, setSeries] = useState([]);
   const chrononCardRef = useRef(new Map());
   const chrononSeriesRef = useRef(new Map());
+
+  const chrononStarIndex = useRef(new Map());
+  const chrononSeriesIndex = useRef(new Map());
 
   useEffect(() => {
     axios.get("https://merak48763.github.io/tool_data/data/chronon.json")
@@ -31,6 +35,18 @@ const ChrononInfoProvider = ({children}) => {
         chrononCardRef.current.set(card.id, card);
       });
 
+      modifiedCard.forEach(card => {
+        if(!chrononStarIndex.current.has(card.star)) {
+          chrononStarIndex.current.set(card.star, new Set());
+        }
+        chrononStarIndex.current.get(card.star).add(card.id);
+
+        if(!chrononSeriesIndex.current.has(card.series)) {
+          chrononSeriesIndex.current.set(card.series, new Set());
+        }
+        chrononSeriesIndex.current.get(card.series).add(card.id);
+      });
+
       setCards(modifiedCard);
       setSeries(res.data.series.map(series => ({
         id: series.id,
@@ -43,6 +59,11 @@ const ChrononInfoProvider = ({children}) => {
 
   const getCardById = useCallback(id => chrononCardRef.current.get(id), []);
   const getSeriesNameById = useCallback(id => chrononSeriesRef.current.get(id)?.name, []);
+  const cardFilter = useCallback(({seriesFilter, starFilter}) => filter({
+    universe: cards.map(c => c.id),
+    seriesFilter, seriesIndex: chrononSeriesIndex.current,
+    starFilter, starIndex: chrononStarIndex.current
+  }).map(id => chrononCardRef.current.get(id)), [cards]);
 
   return (
     <ChrononInfoContext.Provider value={{
@@ -50,7 +71,8 @@ const ChrononInfoProvider = ({children}) => {
       cards,
       series,
       getCardById,
-      getSeriesNameById
+      getSeriesNameById,
+      filter: cardFilter
     }}>
       {children}
     </ChrononInfoContext.Provider>
