@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 import axios from "axios";
 
 const ChrononInfoContext = createContext({});
@@ -41,8 +41,8 @@ const ChrononInfoProvider = ({children}) => {
     });
   }, []);
 
-  const getCardById = id => chrononCardRef.current.get(id);
-  const getSeriesNameById = id => chrononSeriesRef.current.get(id)?.name;
+  const getCardById = useCallback(id => chrononCardRef.current.get(id), []);
+  const getSeriesNameById = useCallback(id => chrononSeriesRef.current.get(id)?.name, []);
 
   return (
     <ChrononInfoContext.Provider value={{

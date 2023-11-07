@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
     Button,
     Select,
@@ -18,20 +18,30 @@ const StyledDivider = props => (
   <Divider textAlign="left" sx={{mt: 1.2, mb: 0.6, color:"primary.dark", fontWeight: 600, "&::before": {flex: "0 0 5px"}}} {...props}/>
 );
 
+const LinkChip = props => (
+  <Chip variant="outlined" sx={{mt: 0.6, cursor: "pointer"}} component="a" target="_blank" {...props} />
+);
+
 const InfoDialog = ({open, onClose, chrononId}) => {
   const [level, setLevel] = useState(1);
   const {getCardById, getSeriesNameById} = useChrononInfo();
-  const displayingCard = getCardById(chrononId);
+  const displayingCard = useMemo(() => getCardById(chrononId), [chrononId, getCardById]);
+
+  useEffect(() => {
+    if(level > displayingCard.maxLevel) {
+      setLevel(displayingCard.maxLevel);
+    }
+  }, [displayingCard, level]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>
-        {displayingCard.name} {displayingCard.nameEn}
+        {displayingCard.name}
       </DialogTitle>
       <DialogContent dividers>
         <Typography>系列：{getSeriesNameById(displayingCard.series)}</Typography>
         <Typography>星數：{displayingCard.star} ★</Typography>
-        <Chip variant="outlined" sx={{mt: 0.6, cursor: "pointer"}} component="a" href={`https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`} target="_blank" label="觀看卡圖" />
+        <LinkChip href={`https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`} label="觀看卡圖" />
         <StyledDivider>FP 資料</StyledDivider>
         <Typography>進場初始值：{displayingCard.initFp[level-1]}</Typography>
         <Typography>上限：{displayingCard.maxFp[level-1]}</Typography>

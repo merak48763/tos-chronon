@@ -1,15 +1,25 @@
-import { useState } from "react";
 import { useChrononInfo } from "./data/chrononInfo";
-import { InfoDialog } from "./components/infoDialog";
+import { CardList } from "./components/cardList";
+import { LoadingDialog } from "./components/loadingDialog";
+import styled from "@emotion/styled";
+
+const AppWrapper = styled.div`
+  padding: 16px;
+  padding-bottom: 120px;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+`;
 
 function App() {
   const {ready} = useChrononInfo();
-  const [dialogOpen, setDialogOpen] = useState(false);
 
-  return (<>
-    {ready && <InfoDialog open={dialogOpen} onClose={() => setDialogOpen(false)} chrononId={10} />}
-    {ready ? <div><button onClick={() => setDialogOpen(true)}>Open Dialog</button></div> : <div>Loading...</div>}
-  </>);
+  return (
+    <AppWrapper>
+      {ready && <CardList />}
+      <LoadingDialog open={!ready} />
+    </AppWrapper>
+  );
 }
 
 export default App;
