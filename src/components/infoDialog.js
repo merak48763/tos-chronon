@@ -11,15 +11,24 @@ import {
     Chip,
     Typography
 } from "@mui/material";
+import styled from "@emotion/styled";
 import { useChrononInfo } from "../data/chrononInfo";
 import { instantSkillDesc, statusSkillDesc, triggeredSkillDesc } from "../data/translation";
 
-const StyledDivider = props => (
-  <Divider textAlign="left" sx={{mt: 1.2, mb: 0.6, color:"primary.dark", fontWeight: 600, "&::before": {flex: "0 0 5px"}}} {...props}/>
+const ChipDivider = ({label}) => (
+  <Divider textAlign="left" sx={{mt: 1.2, mb: 0.8, fontWeight: 600, "&::before": {flex: "0 0 8px"}, "&>.MuiDivider-wrapper": {px: 0.3}}}>
+    <Chip variant="outlined" color="primary" label={label} />
+  </Divider>
 );
 
-const LinkChip = props => (
-  <Chip variant="outlined" sx={{mt: 0.6, cursor: "pointer"}} component="a" target="_blank" {...props} />
+const SkillList = styled.ul`
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: square;
+`;
+
+const LinkButton = props => (
+  <Button size="small" color="secondary" variant="outlined" component="a" target="_blank" {...props} />
 );
 
 const InfoDialog = ({open, onClose, chrononId}) => {
@@ -38,25 +47,33 @@ const InfoDialog = ({open, onClose, chrononId}) => {
       <DialogTitle>
         <Typography variant="h6" component="p">{displayingCard.name}</Typography>
         <Typography variant="caption" component="p">{displayingCard.nameEn}</Typography>
+        <LinkButton sx={{my: 1, position: "absolute", right: 16, top: 12}} href={`https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`}>觀看卡圖</LinkButton>
       </DialogTitle>
       <DialogContent dividers>
         <Typography>系列：{getSeriesNameById(displayingCard.series)}</Typography>
         <Typography>星數：{displayingCard.star} ★</Typography>
-        <LinkChip href={`https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`} label="觀看卡圖" />
-        <StyledDivider>FP 資料</StyledDivider>
-        <Typography>進場初始值：{displayingCard.initFp[level-1]}</Typography>
-        <Typography>上限：{displayingCard.maxFp[level-1]}</Typography>
-        <Typography>每次消除填充量：{displayingCard.fpCharge[level-1]}</Typography>
-        <StyledDivider>即時效果</StyledDivider>
-        {displayingCard.instantSkill[level-1].map(s => (
-          <Typography key={s.skill}>{instantSkillDesc(s.skill, s.args)}</Typography>
-        ))}
-        <StyledDivider>回合效果</StyledDivider>
-        <Typography sx={{mb: 0.5}}>消耗FP：{displayingCard.fpConsume}</Typography>
-        {displayingCard.statusSkill[level-1].map(s => (
-          <Typography key={s.skill}>{statusSkillDesc(s.skill, s.args)}</Typography>
-        ))}
-        <StyledDivider>連動技能</StyledDivider>
+        <ChipDivider label="數值資料" />
+        <Typography>進場FP：{displayingCard.initFp[level-1]}</Typography>
+        <Typography>FP上限：{displayingCard.maxFp[level-1]}</Typography>
+        <Typography>每次消除：+{displayingCard.fpCharge[level-1]} FP</Typography>
+        <ChipDivider label="即時效果" />
+        <SkillList>
+          {displayingCard.instantSkill[level-1].map(s => (
+            <li key={s.skill}>
+              <Typography>{instantSkillDesc(s.skill, s.args)}</Typography>
+            </li>
+          ))}
+        </SkillList>
+        <ChipDivider label="回合效果" />
+        <Typography sx={{mb: 0.5, ml: "auto"}}>消耗FP：{displayingCard.fpConsume}</Typography>
+        <SkillList>
+          {displayingCard.statusSkill[level-1].map(s => (
+            <li key={s.skill}>
+              <Typography>{statusSkillDesc(s.skill, s.args)}</Typography>
+            </li>
+          ))}
+        </SkillList>
+        <ChipDivider label="連動技能" />
         {displayingCard.triggeredSkill[level-1].map(s => (
           <Typography key={s.skill}>{triggeredSkillDesc(s.skill, s.args)}</Typography>
         ))}

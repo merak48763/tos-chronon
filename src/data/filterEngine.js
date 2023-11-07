@@ -11,10 +11,6 @@ function intersect(s1, s2) {
       result.add(v);
     }
   });
-  console.log("---");
-  console.log(s1);
-  console.log(s2);
-  console.log(result);
   return result;
 }
 
