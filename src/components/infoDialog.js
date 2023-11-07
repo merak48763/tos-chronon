@@ -61,7 +61,16 @@ const InfoDialog = ({open, onClose, chrononId}) => {
         ))}
       </DialogContent>
       <DialogActions>
-        <Select size="small" sx={{mr: "auto", width: "100%", maxWidth: 100}} value={level} onChange={e => setLevel(e.target.value)}>
+        <Select size="small" sx={{mr: "auto", width: "100%", maxWidth: 100}} MenuProps={{
+          anchorOrigin: {
+            vertical: "top",
+            horizontal: "left"
+          },
+          transformOrigin: {
+            vertical: "bottom",
+            horizontal: "left"
+          }
+        }} value={level} onChange={e => setLevel(e.target.value)}>
           {[1, 2, 3, 4, 5].map(lv => (
             <MenuItem key={lv} value={lv}>Lv. {lv}</MenuItem>
           ))}
