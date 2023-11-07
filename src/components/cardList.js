@@ -17,7 +17,7 @@ const CardList = ({filteredCards}) => {
   return ready && (<>
     <CardListContainer>
       {filteredCards.map(c => (
-        <CardItem key={c.id} id={c.id} sid={c.series} scid={c.scid} onClick={() => {
+        <CardItem key={c.id} id={c.id} sid={c.series} scid={c.scid} star={c.star} onClick={() => {
           setDisplayingId(c.id);
           setIsDialogOpen(true);
         }} />
