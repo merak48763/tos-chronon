@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/tos-chronon/static/css/main.9b6227b7.css",
-    "main.js": "/tos-chronon/static/js/main.54e3cbb3.js",
+    "main.js": "/tos-chronon/static/js/main.240afd4e.js",
     "static/media/roboto-all-400-normal.woff": "/tos-chronon/static/media/roboto-all-400-normal.c5d001fa922fa66a147f.woff",
     "static/media/roboto-latin-400-normal.woff2": "/tos-chronon/static/media/roboto-latin-400-normal.b009a76ad6afe4ebd301.woff2",
     "static/media/roboto-cyrillic-ext-400-normal.woff2": "/tos-chronon/static/media/roboto-cyrillic-ext-400-normal.804378952da8a10faae2.woff2",
@@ -14,6 +14,6 @@
   },
   "entrypoints": [
     "static/css/main.9b6227b7.css",
-    "static/js/main.54e3cbb3.js"
+    "static/js/main.240afd4e.js"
   ]
 }
