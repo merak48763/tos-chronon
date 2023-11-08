@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
     Button,
     IconButton,
@@ -39,7 +39,6 @@ const ArtworkImg = styled.img`
 
 const InfoDialog = ({open, onClose, chrononId}) => {
   const [level, setLevel] = useState(1);
-  const [showingArtwork, setShowingArtwork] = useState(true);
   const {getCardById, getSeriesNameById} = useChrononInfo();
   const displayingCard = useMemo(() => getCardById(chrononId), [chrononId, getCardById]);
 
@@ -49,11 +48,20 @@ const InfoDialog = ({open, onClose, chrononId}) => {
     }
   }, [displayingCard, level]);
 
+  const [showingArtwork, setShowingArtwork] = useState(true);
   useEffect(() => {
     if(open) {
       setShowingArtwork(false);
     }
   }, [open]);
+
+  const preloadedArtworkRef = useRef(new Set());
+  useEffect(() => {
+    if(!preloadedArtworkRef.current.has(displayingCard.id)) {
+      new Image().src = `https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`;
+      preloadedArtworkRef.current.add(displayingCard.id);
+    }
+  }, [displayingCard]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
