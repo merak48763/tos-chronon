@@ -18,6 +18,7 @@ import {
   FormatListBulletedOutlined as ListIcon
 } from "@mui/icons-material";
 import styled from "@emotion/styled";
+import { useConfig } from "../config/provider";
 import { useChrononInfo } from "../data/chrononInfo";
 import { instantSkillDesc, statusSkillDesc, triggeredSkillDesc } from "../data/translation";
 
@@ -55,11 +56,14 @@ const InfoDialog = ({open, onClose, chrononId}) => {
     }
   }, [open]);
 
+  const {saveData} = useConfig();
   // An in-memory holder to prevent disk caching of current artwork
   const preloadedArtworkRef = useRef(new Image());
   useEffect(() => {
-    preloadedArtworkRef.current.src = `https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`;
-  }, [displayingCard]);
+    if(!saveData && open) {
+      preloadedArtworkRef.current.src = `https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`;
+    }
+  }, [displayingCard, saveData, open]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>

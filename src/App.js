@@ -4,8 +4,12 @@ import { CardList } from "./components/cardList";
 import { LoadingDialog } from "./components/loadingDialog";
 import { StarFilter, SeriesFilter } from "./components/filter";
 import { Fab, Tooltip } from "@mui/material";
-import { Brightness6Outlined as ThemeIcon } from "@mui/icons-material";
-import { useDarkModeConfig } from "./theme/provider";
+import {
+  Brightness6Outlined as ThemeIcon,
+  DataSaverOffOutlined as SaveDataOffIcon,
+  DataSaverOnOutlined as SaveDataOnIcon
+} from "@mui/icons-material";
+import { useConfig } from "./config/provider";
 import styled from "@emotion/styled";
 
 const AppWrapper = styled.div`
@@ -16,8 +20,12 @@ const AppWrapper = styled.div`
   align-items: flex-start;
 `;
 
+const MultiLineText = styled.span`
+  white-space: pre-wrap;
+`;
+
 function App() {
-  const {toggleDarkMode} = useDarkModeConfig();
+  const {darkMode, toggleDarkMode, saveData, toggleSaveData} = useConfig();
 
   const {ready, filter} = useChrononInfo();
   const [starFilter, setStarFilter] = useState([]);
@@ -38,7 +46,16 @@ function App() {
         <CardList filteredCards={filteredCards} />
       </>)}
     </AppWrapper>
-    <Tooltip placement="left" arrow title="切換主題">
+    <Tooltip placement="left" arrow title={(
+      <MultiLineText>{`${saveData ? "允許" : "禁止"}卡圖預先載入\n現在：${saveData ? "禁止" : "允許"}`}</MultiLineText>
+    )}>
+      <Fab color="default" sx={{position: "fixed", bottom: 86, right: 16}} onClick={toggleSaveData}>
+        {saveData ? <SaveDataOnIcon /> : <SaveDataOffIcon />}
+      </Fab>
+    </Tooltip>
+    <Tooltip placement="left" arrow title={(
+      <MultiLineText>{`切換主題\n現在：${darkMode ? "深色" : "淺色"}`}</MultiLineText>
+    )}>
       <Fab color="primary" sx={{position: "fixed", bottom: 16, right: 16}} onClick={toggleDarkMode}>
         <ThemeIcon />
       </Fab>

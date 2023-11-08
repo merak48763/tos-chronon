@@ -1,14 +1,9 @@
-import { useState, useMemo, createContext, useContext } from "react";
+import { useMemo } from "react";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
-
-const ThemeContext = createContext({});
+import { useConfig } from "../config/provider";
 
 const Provider = ({children}) => {
-  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "on");
-  const toggleDarkMode = () => {
-    localStorage.setItem("darkMode", darkMode ? "off" : "on");
-    setDarkMode(!darkMode);
-  }
+  const {darkMode} = useConfig();
 
   const theme = useMemo(() => createTheme({
     palette: {
@@ -22,16 +17,11 @@ const Provider = ({children}) => {
   }), [darkMode]);
 
   return (
-    <ThemeContext.Provider value={{darkMode, toggleDarkMode}}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
-    </ThemeContext.Provider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+    </ThemeProvider>
   );
 }
 
-const useDarkModeConfig = () => useContext(ThemeContext);
-
 export default Provider;
-export { useDarkModeConfig };
