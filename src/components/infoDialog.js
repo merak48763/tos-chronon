@@ -55,12 +55,10 @@ const InfoDialog = ({open, onClose, chrononId}) => {
     }
   }, [open]);
 
-  const preloadedArtworkRef = useRef(new Set());
+  // An in-memory holder to prevent disk caching of current artwork
+  const preloadedArtworkRef = useRef(new Image());
   useEffect(() => {
-    if(!preloadedArtworkRef.current.has(displayingCard.id)) {
-      new Image().src = `https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`;
-      preloadedArtworkRef.current.add(displayingCard.id);
-    }
+    preloadedArtworkRef.current.src = `https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`;
   }, [displayingCard]);
 
   return (
