@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   ToggleButton,
   IconButton,
@@ -61,16 +62,19 @@ const TagGroup = ({selectedValues, availableValues, displayValues, onChange, act
 }
 
 const Filter = ({selectedValues, availableValues, displayValues, onChange, active, onToggle, title}) => {
+  useEffect(() => {
+    if(selectedValues.length === 0) {
+      onToggle(false);
+    }
+  }, [selectedValues, onToggle]);
+
   return (
     <FilterWrapper>
       <TitleWrapper>
         <Radio size="small" checked={active} onClick={() => onToggle(selectedValues.length > 0 && !active)} disableRipple />
         <Typography variant="h6" component="div" sx={{mr: 3}}>{title}</Typography>
         <Tooltip title="清除">
-          <IconButton onClick={() => {
-            onChange([]);
-            onToggle(false);
-          }}>
+          <IconButton onClick={() => onChange([])}>
             <ResetIcon />
           </IconButton>
         </Tooltip>

@@ -47,7 +47,7 @@ const InfoDialog = ({open, onClose, chrononId}) => {
       <DialogTitle>
         <Typography variant="h6" component="p">{displayingCard.name}</Typography>
         <Typography variant="caption" component="p">{displayingCard.nameEn}</Typography>
-        <LinkButton sx={{my: 1, position: "absolute", right: 16, top: 12}} href={`https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`}>觀看卡圖</LinkButton>
+        <LinkButton sx={{my: 1, position: "absolute", right: 16, top: 10}} href={`https://merak48763.github.io/tool_data/image/chronon/full/${displayingCard.series}_${displayingCard.scid}.png`}>觀看卡圖</LinkButton>
       </DialogTitle>
       <DialogContent dividers>
         <Typography>系列：{getSeriesNameById(displayingCard.series)}</Typography>
