@@ -1,6 +1,17 @@
 import styled from "@emotion/styled";
 
+import frame1 from "../images/frame1.png";
+import frame2 from "../images/frame2.png";
+import frame3 from "../images/frame3.png";
+const frames = new Map([
+  [1, frame1],
+  [2, frame2],
+  [3, frame3]
+]);
+
 const cardImageUrl = (sid, scid) => `https://merak48763.github.io/tool_data/image/chronon/${sid}_${scid}.png`;
+
+const frameImageUrl = star => frames.get(star);
 
 const CardWrapper = styled.div`
   position: relative;
@@ -36,7 +47,7 @@ const CardItem = ({id, sid, scid, star, onClick}) => {
   return (
     <CardWrapper>
       <CardImage src={cardImageUrl(sid, scid)} alt="" />
-      <CardImage src={`https://merak48763.github.io/tool_data/image/chronon/frame/${star}.png`} alt="" onClick={onClick} />
+      <CardImage src={frameImageUrl(star)} alt="" onClick={onClick} />
       <CardLabel>{id}</CardLabel>
     </CardWrapper>
   );
