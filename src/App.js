@@ -3,12 +3,11 @@ import { useChrononInfo } from "./data/chrononInfo";
 import { CardList } from "./components/cardList";
 import { LoadingDialog } from "./components/loadingDialog";
 import { StarFilter, SeriesFilter } from "./components/filter";
-import { Fab, Snackbar, IconButton } from "@mui/material";
+import { Fab, Snackbar } from "@mui/material";
 import {
   Brightness6Outlined as ThemeIcon,
   DataSaverOffOutlined as SaveDataOffIcon,
-  DataSaverOnOutlined as SaveDataOnIcon,
-  CloseOutlined as CloseIcon
+  DataSaverOnOutlined as SaveDataOnIcon
 } from "@mui/icons-material";
 import { useConfig } from "./config/provider";
 import styled from "@emotion/styled";
@@ -76,11 +75,7 @@ function App() {
     <Fab color="primary" sx={{position: "fixed", bottom: 16, right: 16}} onClick={handleToggleDarkMode}>
       <ThemeIcon />
     </Fab>
-    <Snackbar key={snackbarMessage} open={isSnackbarOpen} autoHideDuration={2000} onClose={() => setIsSnackbarOpen(false)} message={snackbarMessage} action={(
-      <IconButton onClick={() => setIsSnackbarOpen(false)} color="inherit">
-        <CloseIcon />
-      </IconButton>
-    )} />
+    <Snackbar sx={{bottom: {xs: 160, sm: 24}}} key={snackbarMessage} open={isSnackbarOpen} autoHideDuration={2500} onClose={() => setIsSnackbarOpen(false)} message={snackbarMessage} />
     <LoadingDialog open={!ready} />
   </>);
 }
