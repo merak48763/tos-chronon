@@ -1,13 +1,14 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useChrononInfo } from "./data/chrononInfo";
 import { CardList } from "./components/cardList";
 import { LoadingDialog } from "./components/loadingDialog";
 import { StarFilter, SeriesFilter } from "./components/filter";
-import { Fab, Tooltip } from "@mui/material";
+import { Fab, Snackbar, IconButton } from "@mui/material";
 import {
   Brightness6Outlined as ThemeIcon,
   DataSaverOffOutlined as SaveDataOffIcon,
-  DataSaverOnOutlined as SaveDataOnIcon
+  DataSaverOnOutlined as SaveDataOnIcon,
+  CloseOutlined as CloseIcon
 } from "@mui/icons-material";
 import { useConfig } from "./config/provider";
 import styled from "@emotion/styled";
@@ -20,12 +21,35 @@ const AppWrapper = styled.div`
   align-items: flex-start;
 `;
 
-const MultiLineText = styled.span`
-  white-space: pre-wrap;
-`;
-
 function App() {
   const {darkMode, toggleDarkMode, saveData, toggleSaveData} = useConfig();
+  const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  useEffect(() => {
+    if(snackbarMessage !== "") {
+      setIsSnackbarOpen(true);
+    }
+  }, [snackbarMessage]);
+
+  const handleToggleDarkMode = () => {
+    if(darkMode) {
+      setSnackbarMessage("已經切換到淺色主題");
+    }
+    else {
+      setSnackbarMessage("已經切換到深色主題");
+    }
+    toggleDarkMode();
+  }
+  const handleToggleSaveData = () => {
+    if(saveData) {
+      setSnackbarMessage("現在會預先載入卡圖");
+    }
+    else {
+      setSnackbarMessage("已停用預先載入卡圖功能");
+    }
+    toggleSaveData();
+  }
 
   const {ready, filter} = useChrononInfo();
   const [starFilter, setStarFilter] = useState([]);
@@ -46,20 +70,17 @@ function App() {
         <CardList filteredCards={filteredCards} />
       </>)}
     </AppWrapper>
-    <Tooltip placement="left" arrow title={(
-      <MultiLineText>{`${saveData ? "允許" : "禁止"}卡圖預先載入\n現在：${saveData ? "禁止" : "允許"}`}</MultiLineText>
-    )}>
-      <Fab color="default" sx={{position: "fixed", bottom: 86, right: 16}} onClick={toggleSaveData}>
-        {saveData ? <SaveDataOnIcon /> : <SaveDataOffIcon />}
-      </Fab>
-    </Tooltip>
-    <Tooltip placement="left" arrow title={(
-      <MultiLineText>{`切換主題\n現在：${darkMode ? "深色" : "淺色"}`}</MultiLineText>
-    )}>
-      <Fab color="primary" sx={{position: "fixed", bottom: 16, right: 16}} onClick={toggleDarkMode}>
-        <ThemeIcon />
-      </Fab>
-    </Tooltip>
+    <Fab color="default" sx={{position: "fixed", bottom: 86, right: 16}} onClick={handleToggleSaveData}>
+      {saveData ? <SaveDataOnIcon /> : <SaveDataOffIcon />}
+    </Fab>
+    <Fab color="primary" sx={{position: "fixed", bottom: 16, right: 16}} onClick={handleToggleDarkMode}>
+      <ThemeIcon />
+    </Fab>
+    <Snackbar key={snackbarMessage} open={isSnackbarOpen} autoHideDuration={2000} onClose={() => setIsSnackbarOpen(false)} message={snackbarMessage} action={(
+      <IconButton onClick={() => setIsSnackbarOpen(false)} color="inherit">
+        <CloseIcon />
+      </IconButton>
+    )} />
     <LoadingDialog open={!ready} />
   </>);
 }
