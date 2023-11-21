@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import {
   ImageOutlined as ImageIcon,
-  FormatListBulletedOutlined as ListIcon
+  DescriptionOutlined as ListIcon
 } from "@mui/icons-material";
 import styled from "@emotion/styled";
 import { useConfig } from "../config/provider";
