@@ -25,6 +25,7 @@ const CardWrapper = styled.div`
 
 const CardImage = styled.img`
   cursor: pointer;
+  user-select: none;
   &:first-of-type {
     width: 60px;
     height: 60px;
