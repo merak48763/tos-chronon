@@ -23,8 +23,10 @@ import {
   DescriptionOutlined as ListIcon,
   DifferenceOutlined as CalculatorIcon,
   AddCircleOutlineOutlined as AddIcon,
-  RemoveCircleOutlineOutlined as RemoveIcon
+  RemoveCircleOutlineOutlined as RemoveIcon,
+  KeyboardDoubleArrowRightOutlined as ArrowRightIcon
 } from "@mui/icons-material";
+import { InlineTypography } from "./inlineTypography";
 import styled from "@emotion/styled";
 import { useConfig } from "../config/provider";
 import { useChrononInfo } from "../data/chrononInfo";
@@ -59,6 +61,18 @@ const NewListItem = ({label, item}) => (
       {item}
     </>)} secondaryTypographyProps={{sx: {ml: 0}}} />
   </ListItem>
+);
+
+const NumberChangeText = ({label, lower, higher, modifier, postfix}) => (
+  lower !== higher ? (
+    <Typography>
+      {label}：
+      <InlineTypography color="primary">{modifier}{lower}</InlineTypography>
+      <ArrowRightIcon fontSize="inherit" sx={{verticalAlign: "middle", mx: 0.6}} />
+      <InlineTypography color="primary">{modifier}{higher}</InlineTypography>
+      {postfix}
+    </Typography>
+  ) : null
 );
 
 const SkillList = styled.ul`
@@ -204,32 +218,37 @@ const InfoDialog = ({open, onClose, chrononId}) => {
             <Slider size="small" color="secondary" sx={{width: 300, maxWidth: "80%", ml: 2}} marks={sliderMarks} value={levelRange} min={1} max={displayingCard.maxLevel} step={1} onChange={handleSliderChange} valueLabelFormat={value => `Lv. ${value}`} valueLabelDisplay="auto" />
             <ChipDivider label="強化素材" />
             <Typography>琉璃：{displayingCard.exp[levelRange[1]-1] - displayingCard.exp[levelRange[0]-1]} 個</Typography>
+            <ChipDivider label="數值變化" />
+            <NumberChangeText label="進場FP" lower={displayingCard.initFp[levelRange[0]-1]} higher={displayingCard.initFp[levelRange[1]-1]} />
+            <NumberChangeText label="每次消除" postfix=" FP" lower={displayingCard.fpCharge[levelRange[0]-1]} higher={displayingCard.fpCharge[levelRange[1]-1]} modifier="+" />
             <ChipDivider label="能力變化" />
-            <List disablePadding>{skillDifferences.map(d => {
-              if(d.mode === "add") {
-                if(d.type === "instant") {
-                  return <NewListItem key={d.key} label="獲得即時效果" item={instantSkillDesc(d.skill, d.args)} />;
+            <List disablePadding>
+              {skillDifferences.map(d => {
+                if(d.mode === "add") {
+                  if(d.type === "instant") {
+                    return <NewListItem key={d.key} label="獲得即時效果" item={instantSkillDesc(d.skill, d.args)} />;
+                  }
+                  else if(d.type === "status") {
+                    return <NewListItem key={d.key} label="獲得回合效果" item={statusSkillDesc(d.skill, d.args)} />;
+                  }
+                  else if(d.type === "triggered") {
+                    return <NewListItem key={d.key} label="獲得連動效果" item={triggeredSkillDesc(d.skill, d.args)} />;
+                  }
                 }
-                else if(d.type === "status") {
-                  return <NewListItem key={d.key} label="獲得回合效果" item={statusSkillDesc(d.skill, d.args)} />;
+                else if(d.mode === "change") {
+                  if(d.type === "instant") {
+                    return <DiffListItem key={d.key} label="即時效果變更" lower={instantSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={instantSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
+                  }
+                  else if(d.type === "status") {
+                    return <DiffListItem key={d.key} label="回合效果變更" lower={statusSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={statusSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
+                  }
+                  else if(d.type === "triggered") {
+                    return <DiffListItem key={d.key} label="連動效果變更" lower={triggeredSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={triggeredSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
+                  }
                 }
-                else if(d.type === "triggered") {
-                  return <NewListItem key={d.key} label="獲得連動效果" item={triggeredSkillDesc(d.skill, d.args)} />;
-                }
-              }
-              else if(d.mode === "change") {
-                if(d.type === "instant") {
-                  return <DiffListItem key={d.key} label="即時效果變更" lower={instantSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={instantSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
-                }
-                else if(d.type === "status") {
-                  return <DiffListItem key={d.key} label="回合效果變更" lower={statusSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={statusSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
-                }
-                else if(d.type === "triggered") {
-                  return <DiffListItem key={d.key} label="連動效果變更" lower={triggeredSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={triggeredSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
-                }
-              }
-              return <ListItem key={d.key}><Typography>N/A</Typography></ListItem>;
-            }).flatMap((d, i) => [d, <Divider key={`D-${i}`} component="li" />]).slice(0, -1)}</List>
+                return <ListItem key={d.key}><Typography>N/A</Typography></ListItem>;
+              }).flatMap((d, i) => [d, <Divider key={`D-${i}`} component="li" />]).slice(0, -1)}
+            </List>
           </>) : (<>
             <ChipDivider label="基礎數值" />
             <Typography>進場FP：{displayingCard.initFp[level-1]}</Typography>

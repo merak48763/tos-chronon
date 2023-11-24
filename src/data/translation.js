@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+import { InlineTypography } from "../components/inlineTypography";
 
 const A = id => ["無", "水", "火", "木", "光", "暗"][id];
 
@@ -21,7 +21,7 @@ function instantSkillDesc(skillId, args) {
 }
 function instantSkillDescWithMark(skillId, args, marks) {
   // Currently incompatible with the A function if the attribute is changed
-  return instantSkillDesc(skillId, args.map((arg, i) => marks[i] ? <Typography display="inline" component="span" variant="inherit" color="primary">{arg}</Typography> : arg));
+  return instantSkillDesc(skillId, args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
 const SSTranslator = new Map([
@@ -71,7 +71,7 @@ function statusSkillDesc(skillId, args) {
 }
 function statusSkillDescWithMark(skillId, args, marks) {
   // Currently incompatible with the A function if the attribute is changed
-  return statusSkillDesc(skillId, args.map((arg, i) => marks[i] ? <Typography display="inline" component="span" variant="inherit" color="primary">{arg}</Typography> : arg));
+  return statusSkillDesc(skillId, args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
 const TSTranslator = new Map([
@@ -100,7 +100,7 @@ function triggeredSkillDesc(skillId, args) {
 }
 function triggeredSkillDescWithMark(skillId, args, marks) {
   // Currently incompatible with the A function if the attribute is changed
-  return triggeredSkillDesc(skillId, args.map((arg, i) => marks[i] ? <Typography display="inline" component="span" variant="inherit" color="primary">{arg}</Typography> : arg));
+  return triggeredSkillDesc(skillId, args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
 export {
