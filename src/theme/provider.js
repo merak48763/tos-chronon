@@ -13,6 +13,15 @@ const Provider = ({children}) => {
       button: {
         textTransform: "none"
       }
+    },
+    components: {
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            height: "calc(100% - 64px)"
+          }
+        }
+      }
     }
   }), [darkMode]);
 

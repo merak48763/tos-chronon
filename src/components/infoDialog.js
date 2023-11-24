@@ -12,23 +12,53 @@ import {
   Divider,
   Chip,
   Slider,
+  List,
+  ListItem,
+  ListItemText,
   Tooltip,
   Typography
 } from "@mui/material";
 import {
   ImageOutlined as ImageIcon,
   DescriptionOutlined as ListIcon,
-  CalculateOutlined as CalculatorIcon
+  DifferenceOutlined as CalculatorIcon,
+  AddCircleOutlineOutlined as AddIcon,
+  RemoveCircleOutlineOutlined as RemoveIcon
 } from "@mui/icons-material";
 import styled from "@emotion/styled";
 import { useConfig } from "../config/provider";
 import { useChrononInfo } from "../data/chrononInfo";
-import { instantSkillDesc, statusSkillDesc, triggeredSkillDesc } from "../data/translation";
+import {
+  instantSkillDesc, instantSkillDescWithMark,
+  statusSkillDesc, statusSkillDescWithMark,
+  triggeredSkillDesc, triggeredSkillDescWithMark
+} from "../data/translation";
 
 const ChipDivider = ({label}) => (
   <Divider textAlign="left" sx={{mt: 1.2, mb: 0.8, fontWeight: 600, "&::before": {flex: "0 0 8px"}, "&>.MuiDivider-wrapper": {px: 0.3}}}>
     <Chip variant="outlined" color="primary" label={label} />
   </Divider>
+);
+
+const DiffListItem = ({label, lower, higher}) => (
+  <ListItem disableGutters>
+    <ListItemText sx={{m: 0}} primary={label} secondary={(<>
+      <RemoveIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="error" />
+      {lower}
+      <br />
+      <AddIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="success" />
+      {higher}
+    </>)} secondaryTypographyProps={{sx: {ml: 0}}} />
+  </ListItem>
+);
+
+const NewListItem = ({label, item}) => (
+  <ListItem disableGutters>
+    <ListItemText sx={{m: 0}} primary={label} secondary={(<>
+      <AddIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="success" />
+      {item}
+    </>)} secondaryTypographyProps={{sx: {ml: 0}}} />
+  </ListItem>
 );
 
 const SkillList = styled.ul`
@@ -84,6 +114,52 @@ const InfoDialog = ({open, onClose, chrononId}) => {
       }
     }
   }, [displayingCard, levelRange]);
+  const skillDifferences = useMemo(() => {
+    const [lowerLevel, higherLevel] = levelRange;
+    if(higherLevel > displayingCard.maxLevel) return [];
+
+    const mapper = sl => new Map(sl.map(s => [s.skill, s.args]));
+    const compareArgList = (a1, a2) => a1.map((e, i) => e !== a2[i]);
+
+    const result = [];
+    const compareSkills = skillType => {
+      const lowerSkill = displayingCard[`${skillType}Skill`][lowerLevel-1];
+      const higherSkill = displayingCard[`${skillType}Skill`][higherLevel-1];
+      const lowerInstant = mapper(lowerSkill);
+      const higherInstant = mapper(higherSkill);
+      for(const [s, higherArgs] of higherInstant.entries()) {
+        const lowerArgs = lowerInstant.get(s);
+        if(lowerArgs !== undefined) {
+          const argDiff = compareArgList(higherArgs, lowerArgs);
+          if(argDiff.some(e => e)) {
+            result.push({
+              key: `C-${displayingCard.id}-${skillType}-${s}-${lowerLevel}-${higherLevel}`,
+              mode: "change",
+              type: skillType,
+              skill: s,
+              lowerArgs,
+              higherArgs,
+              diff: argDiff
+            });
+          }
+        }
+        else {
+          result.push({
+            key: `A-${displayingCard.id}-${skillType}-${s}-${higherLevel}`,
+            mode: "add",
+            type: skillType,
+            skill: s,
+            args: higherArgs
+          });
+        }
+      }
+    };
+    compareSkills("instant");
+    compareSkills("status");
+    compareSkills("triggered");
+
+    return result;
+  }, [displayingCard, levelRange]);
 
   const sliderMarks = useMemo(() => {
     return levelList.map(lv => ({
@@ -129,9 +205,33 @@ const InfoDialog = ({open, onClose, chrononId}) => {
             <ChipDivider label="強化素材" />
             <Typography>琉璃：{displayingCard.exp[levelRange[1]-1] - displayingCard.exp[levelRange[0]-1]} 個</Typography>
             <ChipDivider label="能力變化" />
-            <Typography>WIP</Typography>
+            <List disablePadding>{skillDifferences.map(d => {
+              if(d.mode === "add") {
+                if(d.type === "instant") {
+                  return <NewListItem key={d.key} label="獲得即時效果" item={instantSkillDesc(d.skill, d.args)} />;
+                }
+                else if(d.type === "status") {
+                  return <NewListItem key={d.key} label="獲得回合效果" item={statusSkillDesc(d.skill, d.args)} />;
+                }
+                else if(d.type === "triggered") {
+                  return <NewListItem key={d.key} label="獲得連動效果" item={triggeredSkillDesc(d.skill, d.args)} />;
+                }
+              }
+              else if(d.mode === "change") {
+                if(d.type === "instant") {
+                  return <DiffListItem key={d.key} label="即時效果變更" lower={instantSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={instantSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
+                }
+                else if(d.type === "status") {
+                  return <DiffListItem key={d.key} label="回合效果變更" lower={statusSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={statusSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
+                }
+                else if(d.type === "triggered") {
+                  return <DiffListItem key={d.key} label="連動效果變更" lower={triggeredSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={triggeredSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
+                }
+              }
+              return <ListItem key={d.key}><Typography>N/A</Typography></ListItem>;
+            }).flatMap((d, i) => [d, <Divider key={`D-${i}`} component="li" />]).slice(0, -1)}</List>
           </>) : (<>
-            <ChipDivider label="數值資料" />
+            <ChipDivider label="基礎數值" />
             <Typography>進場FP：{displayingCard.initFp[level-1]}</Typography>
             <Typography>FP上限：{displayingCard.maxFp[level-1]}</Typography>
             <Typography>每次消除：+{displayingCard.fpCharge[level-1]} FP</Typography>
@@ -163,7 +263,7 @@ const InfoDialog = ({open, onClose, chrononId}) => {
         {!showingArtwork && (
           <Container sx={{mr: "auto"}} fixed disableGutters>
             <Tooltip placement="top-start" title={calculatorMode ? "顯示一般資料" : "顯示計算機"}>
-              <IconButton disabled={process.env.NODE_ENV === "production"} onClick={() => setCalculatorMode(!calculatorMode)}>
+              <IconButton onClick={() => setCalculatorMode(!calculatorMode)}>
                 {calculatorMode ? <ListIcon /> : <CalculatorIcon />}
               </IconButton>
             </Tooltip>
