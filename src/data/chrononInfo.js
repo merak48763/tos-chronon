@@ -22,7 +22,8 @@ const ChrononInfoProvider = ({children}) => {
         chrononSeriesRef.current.set(series.id, {
           id: series.id,
           name: series.name,
-          stars: new Map(series.stars.map(starData => [starData.star, starData]))
+          stars: new Map(series.stars.map(starData => [starData.star, starData])),
+          marbel: series.marbel
         });
       });
       res.data.card.forEach(card => {
@@ -59,6 +60,7 @@ const ChrononInfoProvider = ({children}) => {
 
   const getCardById = useCallback(id => chrononCardRef.current.get(id), []);
   const getSeriesNameById = useCallback(id => chrononSeriesRef.current.get(id)?.name, []);
+  const getSeriesMarbelById = useCallback(id => chrononSeriesRef.current.get(id)?.marbel, []);
   const cardFilter = useCallback(({seriesFilter, starFilter}) => filter({
     universe: cards.map(c => c.id),
     seriesFilter, seriesIndex: chrononSeriesIndex.current,
@@ -72,6 +74,7 @@ const ChrononInfoProvider = ({children}) => {
       series,
       getCardById,
       getSeriesNameById,
+      getSeriesMarbelById,
       filter: cardFilter
     }}>
       {children}

@@ -87,7 +87,7 @@ const ArtworkImg = styled.img`
 
 const InfoDialog = ({open, onClose, chrononId}) => {
   const [level, setLevel] = useState(1);
-  const {getCardById, getSeriesNameById} = useChrononInfo();
+  const {getCardById, getSeriesNameById, getSeriesMarbelById} = useChrononInfo();
   const displayingCard = useMemo(() => getCardById(chrononId), [chrononId, getCardById]);
 
   const levelList = useMemo(() => {
@@ -217,7 +217,7 @@ const InfoDialog = ({open, onClose, chrononId}) => {
             <ChipDivider label="設定等級" />
             <Slider size="small" color="secondary" sx={{width: 300, maxWidth: "80%", ml: 2}} marks={sliderMarks} value={levelRange} min={1} max={displayingCard.maxLevel} step={1} onChange={handleSliderChange} valueLabelFormat={value => `Lv. ${value}`} valueLabelDisplay="auto" />
             <ChipDivider label="強化素材" />
-            <Typography>琉璃：{displayingCard.exp[levelRange[1]-1] - displayingCard.exp[levelRange[0]-1]} 個</Typography>
+            <Typography>{getSeriesMarbelById(displayingCard.series)}：{displayingCard.exp[levelRange[1]-1] - displayingCard.exp[levelRange[0]-1]} 個</Typography>
             <ChipDivider label="數值變化" />
             <NumberChangeText label="進場FP" lower={displayingCard.initFp[levelRange[0]-1]} higher={displayingCard.initFp[levelRange[1]-1]} />
             <NumberChangeText label="每次消除" postfix=" FP" lower={displayingCard.fpCharge[levelRange[0]-1]} higher={displayingCard.fpCharge[levelRange[1]-1]} modifier="+" />
