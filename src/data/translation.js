@@ -1,6 +1,7 @@
 import { InlineTypography } from "../components/inlineTypography";
 
 const A = id => ["無", "水", "火", "木", "光", "暗"][id];
+const R = id => [null, "人類", "獸類", "妖精", "龍類", "神族", null, null, "魔族", null, "機械族"][id];
 
 const ISTranslator = new Map([
   [1, ([v0]) => <>自身技能 CD -{v0}</>],
@@ -14,7 +15,9 @@ const ISTranslator = new Map([
   [9, () => "完全回復生命力"],
   [10, () => "解除自身疲憊狀態"],
   [11, () => "解除自身風壓狀態"],
-  [12, () => "解除自身休眠狀態"]
+  [12, () => "解除自身休眠狀態"],
+  [13, ([v0, v1]) => <>自身為{v1}成員，自身技能 CD -{v0}</>],
+  [14, ([v0, v1]) => <>自身為{A(v1)}屬性成員，自身技能 CD -{v0}</>]
 ]);
 function instantSkillDesc(skillId, args) {
   return ISTranslator.get(skillId)?.(args) ?? `CT_SKILL_INSTANT_${skillId}`;
