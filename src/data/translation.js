@@ -17,7 +17,9 @@ const ISTranslator = new Map([
   [11, () => "解除自身風壓狀態"],
   [12, () => "解除自身休眠狀態"],
   [13, ([v0, v1]) => <>自身為{v1}成員，自身技能 CD -{v0}</>],
-  [14, ([v0, v1]) => <>自身為{A(v1)}屬性成員，自身技能 CD -{v0}</>]
+  [14, ([v0, v1]) => <>自身為{A(v1)}屬性成員，自身技能 CD -{v0}</>],
+  [15, () => "解除自身被封鎖的技能 (此技能無視封鎖技能)"],
+  [16, ([v0, v1, v2]) => <>發動攻擊前自身對敵方全體造成 {v0} 點{A(v2)}屬性傷害 {v1} 次</>]
 ]);
 function instantSkillDesc(skillId, args) {
   return ISTranslator.get(skillId)?.(args) ?? `CT_SKILL_INSTANT_${skillId}`;
@@ -67,7 +69,8 @@ const SSTranslator = new Map([
   [37, () => "自身無視指定減傷抗性敵技"],
   [38, () => "隊伍不受「漆黑照明」、「漆黑結聚」技能影響"],
   [39, ([v0, v1]) => <>自身以 {v0}% 攻擊力追打五屬性攻擊各 {v1} 次</>],
-  [40, ([v0, v1]) => <>所有成員以 {v0}% 攻擊力追打五屬性攻擊各 {v1} 次</>]
+  [40, ([v0, v1]) => <>所有成員以 {v0}% 攻擊力追打五屬性攻擊各 {v1} 次</>],
+  [41, () => "自身無視「二屬盾」、「三屬盾」、「四屬盾」及「五屬盾」"]
 ]);
 function statusSkillDesc(skillId, args) {
   return SSTranslator.get(skillId)?.(args) ?? `CT_SKILL_STATUS_${skillId}`;
@@ -96,7 +99,9 @@ const TSTranslator = new Map([
   [16, ([v0]) => <>自身技能 CD -{v0}</>],
   [17, ([v0]) => <>自身增加 {v0} EP</>],
   [18, ([v0, v1]) => <>自身以 {v0}% 攻擊力追打五屬性攻擊各 {v1} 次</>],
-  [19, () => "完全回復生命力"]
+  [19, () => "完全回復生命力"],
+  [20, ([v0, v1]) => <>回合結束時，<br />將單數直行的符石轉化為{A(v0)}強化符石，<br />將雙數直行的符石轉化為{A(v1)}強化符石</>],
+  [21, ([v0, v1]) => <>回合結束時，<br />將單數橫行的符石轉化為{A(v0)}強化符石，<br />將雙數橫行的符石轉化為{A(v1)}強化符石</>]
 ]);
 function triggeredSkillDesc(skillId, args) {
   return TSTranslator.get(skillId)?.(args) ?? `CT_SKILL_TRIGGERED_${skillId}`;
