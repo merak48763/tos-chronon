@@ -272,9 +272,13 @@ const InfoDialog = ({open, onClose, chrononId}) => {
               ))}
             </SkillList>
             <ChipDivider label="連動技能" />
-            {displayingCard.triggeredSkill[level-1].map(s => (
-              <Typography key={s.skill}>{triggeredSkillDesc(s.skill, s.args)}</Typography>
-            ))}
+            <SkillList>
+              {displayingCard.triggeredSkill[level-1].map(s => (
+                <li key={s.skill}>
+                  <Typography>{triggeredSkillDesc(s.skill, s.args)}</Typography>
+                </li>
+              ))}
+            </SkillList>
           </>)}
         </DialogContent>
       )}
