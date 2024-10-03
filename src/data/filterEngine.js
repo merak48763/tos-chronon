@@ -46,7 +46,7 @@ function filter({
     result = intersect(result, stageResult);
   }
 
-  return [...result].sort((a, b) => a - b);
+  return [...result];
 }
 
 function computeSkillFilterId(groupIndex, cellIndex) {

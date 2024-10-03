@@ -58,11 +58,15 @@ function App() {
   const [abilityCategoryFilter, setAbilityCategoryFilter] = useState([]);
   const [abilityCategoryFilterActive, setAbilityCategoryFilterActive] = useState(false);
 
+  //eslint-disable-next-line no-unused-vars
+  const [sortingMethod, setSortingMethod] = useState(0);
+
   const filteredCards = useMemo(() => filter({
     seriesFilter: (seriesFilter.length > 0 && seriesFilterActive) ? seriesFilter : null,
     starFilter: (starFilter.length > 0 && starFilterActive) ? starFilter : null,
-    abilityCategoryFilter: (abilityCategoryFilter.length > 0 && abilityCategoryFilterActive) ? abilityCategoryFilter : null
-  }), [seriesFilter, seriesFilterActive, starFilter, starFilterActive, abilityCategoryFilter, abilityCategoryFilterActive, filter]);
+    abilityCategoryFilter: (abilityCategoryFilter.length > 0 && abilityCategoryFilterActive) ? abilityCategoryFilter : null,
+    sortingMethod
+  }), [seriesFilter, seriesFilterActive, starFilter, starFilterActive, abilityCategoryFilter, abilityCategoryFilterActive, sortingMethod, filter]);
 
   return (<>
     <AppWrapper>

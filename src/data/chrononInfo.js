@@ -113,12 +113,19 @@ const ChrononInfoProvider = ({children}) => {
   const getCardById = useCallback(id => chrononCardRef.current.get(id), []);
   const getSeriesNameById = useCallback(id => chrononSeriesRef.current.get(id)?.name, []);
   const getSeriesMarbelById = useCallback(id => chrononSeriesRef.current.get(id)?.marbel, []);
-  const cardFilter = useCallback(({seriesFilter, starFilter, abilityCategoryFilter}) => filter({
+
+  const cardFilter = useCallback(({seriesFilter, starFilter, abilityCategoryFilter, sortingMethod}) => filter({
     universe: cards.map(c => c.id),
     seriesFilter, seriesIndex: chrononSeriesIndex.current,
     starFilter, starIndex: chrononStarIndex.current,
     abilityCategoryFilter, abilityCategoryIndex: chrononAbilityCategoryIndex.current
-  }).map(id => chrononCardRef.current.get(id)), [cards]);  // TODO: add sorting method option
+  }).map(id => chrononCardRef.current.get(id)).sort((a, b) => {
+    if(sortingMethod === 1 && a.star !== b.star) {
+      // sort by star
+      return a.star - b.star;
+    }
+    return a.id - b.id;
+  }), [cards]);
 
   return (
     <ChrononInfoContext.Provider value={{
