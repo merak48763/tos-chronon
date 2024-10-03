@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { RefreshOutlined as ResetIcon } from "@mui/icons-material";
 import { useChrononInfo } from "../data/chrononInfo";
+import { groupedSkillFilterIds, groupedSkillFilterNames } from "../data/filterEngine";
 import styled from "@emotion/styled";
 
 const FilterWrapper = styled.div`
@@ -61,7 +62,7 @@ const TagGroup = ({selectedValues, availableValues, displayValues, onChange, act
   );
 }
 
-const Filter = ({selectedValues, availableValues, displayValues, onChange, active, onToggle, title}) => {
+const MultigroupFilter = ({selectedValues, groupedAvailableValues, groupedDisplayValues, onChange, active, onToggle, title}) => {
   useEffect(() => {
     if(selectedValues.length === 0) {
       onToggle(false);
@@ -79,8 +80,22 @@ const Filter = ({selectedValues, availableValues, displayValues, onChange, activ
           </IconButton>
         </Tooltip>
       </TitleWrapper>
-      <TagGroup selectedValues={selectedValues} availableValues={availableValues} displayValues={displayValues} onChange={onChange} active={active} onToggle={onToggle} />
+      {groupedAvailableValues.map((availableValues, i) => (
+        <TagGroup key={i} selectedValues={selectedValues} availableValues={availableValues} displayValues={groupedDisplayValues[i]} onChange={onChange} active={active} onToggle={onToggle} />
+      ))}
     </FilterWrapper>
+  );
+}
+
+const Filter = ({selectedValues, availableValues, displayValues, onChange, active, onToggle, title}) => {
+  useEffect(() => {
+    if(selectedValues.length === 0) {
+      onToggle(false);
+    }
+  }, [selectedValues, onToggle]);
+
+  return (
+    <MultigroupFilter selectedValues={selectedValues} groupedAvailableValues={[availableValues]} groupedDisplayValues={[displayValues]} onChange={onChange} active={active} onToggle={onToggle} title={title} />
   );
 }
 
@@ -95,4 +110,8 @@ const SeriesFilter = ({value, onChange, active, onToggle}) => {
   );
 }
 
-export { StarFilter, SeriesFilter };
+const AbilityCategoryFilter = ({value, onChange, active, onToggle}) => (
+  <MultigroupFilter selectedValues={value} onChange={onChange} groupedAvailableValues={groupedSkillFilterIds} groupedDisplayValues={groupedSkillFilterNames} active={active} onToggle={onToggle} title="篩選特殊能力 (WIP)" />
+)
+
+export { StarFilter, SeriesFilter, AbilityCategoryFilter };

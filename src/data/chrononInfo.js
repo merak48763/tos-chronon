@@ -61,10 +61,11 @@ const ChrononInfoProvider = ({children}) => {
   const getCardById = useCallback(id => chrononCardRef.current.get(id), []);
   const getSeriesNameById = useCallback(id => chrononSeriesRef.current.get(id)?.name, []);
   const getSeriesMarbelById = useCallback(id => chrononSeriesRef.current.get(id)?.marbel, []);
-  const cardFilter = useCallback(({seriesFilter, starFilter}) => filter({
+  const cardFilter = useCallback(({seriesFilter, starFilter, abilityCategoryFilter}) => filter({
     universe: cards.map(c => c.id),
     seriesFilter, seriesIndex: chrononSeriesIndex.current,
-    starFilter, starIndex: chrononStarIndex.current
+    starFilter, starIndex: chrononStarIndex.current,
+    abilityCategoryFilter
   }).map(id => chrononCardRef.current.get(id)), [cards]);
 
   return (

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useChrononInfo } from "./data/chrononInfo";
 import { CardList } from "./components/cardList";
 import { LoadingDialog } from "./components/loadingDialog";
-import { StarFilter, SeriesFilter } from "./components/filter";
+import { StarFilter, SeriesFilter, AbilityCategoryFilter } from "./components/filter";
 import { Fab, Snackbar } from "@mui/material";
 import {
   Brightness6Outlined as ThemeIcon,
@@ -55,6 +55,8 @@ function App() {
   const [starFilterActive, setStarFilterActive] = useState(false);
   const [seriesFilter, setSeriesFilter] = useState([]);
   const [seriesFilterActive, setSeriesFilterActive] = useState(false);
+  const [abilityCategoryFilter, setAbilityCategoryFilter] = useState([]);
+  const [abilityCategoryFilterActive, setAbilityCategoryFilterActive] = useState(false);
 
   const filteredCards = useMemo(() => filter({
     seriesFilter: (seriesFilter.length > 0 && seriesFilterActive) ? seriesFilter : null,
@@ -66,6 +68,7 @@ function App() {
       {ready && (<>
         <SeriesFilter value={seriesFilter} onChange={v => setSeriesFilter(v)} active={seriesFilterActive} onToggle={v => setSeriesFilterActive(v)} />
         <StarFilter value={starFilter} onChange={v => setStarFilter(v)} active={starFilterActive} onToggle={v => setStarFilterActive(v)} />
+        <AbilityCategoryFilter value={abilityCategoryFilter} onChange={v => setAbilityCategoryFilter(v)} active={abilityCategoryFilterActive} onToggle={v => setAbilityCategoryFilterActive(v)} />
         <CardList filteredCards={filteredCards} />
       </>)}
     </AppWrapper>

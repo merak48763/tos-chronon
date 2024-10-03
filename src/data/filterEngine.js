@@ -1,3 +1,5 @@
+import skillFilterData from "./skillFilterConfig.json";
+
 function union(s1, s2) {
   const result = new Set(s1);
   s2?.forEach(v => result.add(v));
@@ -17,7 +19,8 @@ function intersect(s1, s2) {
 function filter({
     universe,
     starIndex, starFilter,
-    seriesIndex, seriesFilter
+    seriesIndex, seriesFilter,
+    abilityCategoryFilter
   }) {
   let result = new Set(universe);
 
@@ -40,4 +43,7 @@ function filter({
   return [...result].sort((a, b) => a - b);
 }
 
-export { filter };
+const groupedSkillFilterIds = skillFilterData.groups.map((group, i) => group.map((_, j) => 100*i+j));
+const groupedSkillFilterNames = skillFilterData.groups.map(group => group.map(cell => cell.tag));
+
+export { filter, groupedSkillFilterIds, groupedSkillFilterNames };
