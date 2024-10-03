@@ -7,8 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { RefreshOutlined as ResetIcon } from "@mui/icons-material";
-import { useChrononInfo } from "../data/chrononInfo";
-import { groupedSkillFilterIds, groupedSkillFilterNames } from "../data/filterEngine";
+import { useChrononInfo, groupedSkillFilterIds, groupedSkillFilterNames } from "../data/chrononInfo";
 import styled from "@emotion/styled";
 
 const FilterWrapper = styled.div`
@@ -111,7 +110,7 @@ const SeriesFilter = ({value, onChange, active, onToggle}) => {
 }
 
 const AbilityCategoryFilter = ({value, onChange, active, onToggle}) => (
-  <MultigroupFilter selectedValues={value} onChange={onChange} groupedAvailableValues={groupedSkillFilterIds} groupedDisplayValues={groupedSkillFilterNames} active={active} onToggle={onToggle} title="篩選特殊能力 (WIP)" />
+  <MultigroupFilter selectedValues={value} onChange={onChange} groupedAvailableValues={groupedSkillFilterIds} groupedDisplayValues={groupedSkillFilterNames} active={active} onToggle={onToggle} title="篩選特殊能力" />
 )
 
 export { StarFilter, SeriesFilter, AbilityCategoryFilter };

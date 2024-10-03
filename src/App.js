@@ -61,7 +61,8 @@ function App() {
   const filteredCards = useMemo(() => filter({
     seriesFilter: (seriesFilter.length > 0 && seriesFilterActive) ? seriesFilter : null,
     starFilter: (starFilter.length > 0 && starFilterActive) ? starFilter : null,
-  }), [seriesFilter, seriesFilterActive, starFilter, starFilterActive, filter]);
+    abilityCategoryFilter: (abilityCategoryFilter.length > 0 && abilityCategoryFilterActive) ? abilityCategoryFilter : null
+  }), [seriesFilter, seriesFilterActive, starFilter, starFilterActive, abilityCategoryFilter, abilityCategoryFilterActive, filter]);
 
   return (<>
     <AppWrapper>
