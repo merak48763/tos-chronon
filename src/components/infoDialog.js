@@ -33,7 +33,8 @@ import { useChrononInfo } from "../data/chrononInfo";
 import {
   instantSkillDesc, instantSkillDescWithMark,
   statusSkillDesc, statusSkillDescWithMark,
-  triggeredSkillDesc, triggeredSkillDescWithMark
+  triggeredSkillDesc, triggeredSkillDescWithMark,
+  toRomanNumerical
 } from "../data/translation";
 
 const ChipDivider = ({label}) => (
@@ -58,6 +59,15 @@ const NewListItem = ({label, item}) => (
   <ListItem disableGutters>
     <ListItemText sx={{m: 0}} primary={label} secondary={(<>
       <AddIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="success" />
+      {item}
+    </>)} secondaryTypographyProps={{sx: {ml: 0}}} />
+  </ListItem>
+);
+
+const RemoveListItem = ({label, item}) => (
+  <ListItem disableGutters>
+    <ListItemText sx={{m: 0}} primary={label} secondary={(<>
+      <RemoveIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="error" />
       {item}
     </>)} secondaryTypographyProps={{sx: {ml: 0}}} />
   </ListItem>
@@ -141,6 +151,18 @@ const InfoDialog = ({open, onClose, chrononId}) => {
       const higherSkill = displayingCard[`${skillType}Skill`][higherLevel-1];
       const lowerInstant = mapper(lowerSkill);
       const higherInstant = mapper(higherSkill);
+      for(const [s, lowerArgs] of lowerInstant.entries()) {
+        const higherArgs = higherInstant.get(s);
+        if(higherArgs === undefined) {
+          result.push({
+            key: `R-${displayingCard.id}-${skillType}-${s}-${lowerLevel}`,
+            mode: "remove",
+            type: skillType,
+            skill: s,
+            args: lowerArgs
+          });
+        }
+      }
       for(const [s, higherArgs] of higherInstant.entries()) {
         const lowerArgs = lowerInstant.get(s);
         if(lowerArgs !== undefined) {
@@ -198,7 +220,7 @@ const InfoDialog = ({open, onClose, chrononId}) => {
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>
         <Typography variant="h6" component="p">{displayingCard.name}</Typography>
-        <Typography variant="caption" component="p">{displayingCard.nameEn}</Typography>
+        <Typography variant="caption" component="p">{displayingCard.nameEn} [{toRomanNumerical(displayingCard.id)}]</Typography>
         <Tooltip title={showingArtwork ? "顯示資料" : "顯示卡圖"}>
           <IconButton sx={{my: 1, position: "absolute", right: 12, top: 6}} color="secondary" onClick={() => setShowingArtwork(!showingArtwork)}>
             {showingArtwork ? <ListIcon /> : <ImageIcon />}
@@ -244,6 +266,17 @@ const InfoDialog = ({open, onClose, chrononId}) => {
                   }
                   else if(d.type === "triggered") {
                     return <DiffListItem key={d.key} label="連動效果變更" lower={triggeredSkillDescWithMark(d.skill, d.lowerArgs, d.diff)} higher={triggeredSkillDescWithMark(d.skill, d.higherArgs, d.diff)} />;
+                  }
+                }
+                else if(d.mode === "remove") {
+                  if(d.type === "instant") {
+                    return <RemoveListItem key={d.key} label="移除即時效果" item={instantSkillDesc(d.skill, d.args)} />;
+                  }
+                  else if(d.type === "status") {
+                    return <RemoveListItem key={d.key} label="移除回合效果" item={statusSkillDesc(d.skill, d.args)} />;
+                  }
+                  else if(d.type === "triggered") {
+                    return <RemoveListItem key={d.key} label="移除連動效果" item={triggeredSkillDesc(d.skill, d.args)} />;
                   }
                 }
                 return <ListItem key={d.key}><Typography>N/A</Typography></ListItem>;

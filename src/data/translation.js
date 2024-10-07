@@ -135,8 +135,26 @@ function triggeredSkillDescWithMark(skillId, args, marks) {
   return triggeredSkillDesc(skillId, args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
+function toRomanNumerical(num) {
+  if(isNaN(num)) {
+    return NaN;
+  }
+  const digits = (+num).toString().split("");
+  const keys = [
+    "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM",
+    "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC",
+    "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"
+  ];
+  let result = "";
+  for(let i=2; i>=0; --i) {
+    result = (keys[parseInt(digits.pop()) + i*10] ?? "") + result;
+  }
+  return result;
+}
+
 export {
   instantSkillDesc, instantSkillDescWithMark,
   statusSkillDesc, statusSkillDescWithMark,
-  triggeredSkillDesc, triggeredSkillDescWithMark
+  triggeredSkillDesc, triggeredSkillDescWithMark,
+  toRomanNumerical
 };
