@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/tos-chronon/static/css/main.abdc0f4a.css",
-    "main.js": "/tos-chronon/static/js/main.46910c60.js",
+    "main.js": "/tos-chronon/static/js/main.efb4276e.js",
     "static/media/frame3.png": "/tos-chronon/static/media/frame3.7da047f5282836b9feaa.png",
     "static/media/frame2.png": "/tos-chronon/static/media/frame2.cc280108110e4cc7f30d.png",
     "static/media/frame1.png": "/tos-chronon/static/media/frame1.7cfd5191f711a00b5729.png",
@@ -23,6 +23,6 @@
   },
   "entrypoints": [
     "static/css/main.abdc0f4a.css",
-    "static/js/main.46910c60.js"
+    "static/js/main.efb4276e.js"
   ]
 }
