@@ -1,6 +1,6 @@
 import { InlineTypography } from "../components/inlineTypography";
 
-const A = id => ["無", "水", "火", "木", "光", "暗"][id];
+const A = id => ["無", "水", "火", "木", "光", "暗", "心"][id];
 const R = id => [null, "人類", "獸類", "妖精", "龍類", "神族", null, null, "魔族", null, "機械族"][id];
 
 const ISTranslator = new Map([
