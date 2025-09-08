@@ -3,6 +3,8 @@ import { InlineTypography } from "../components/inlineTypography";
 const A = id => ["無", "水", "火", "木", "光", "暗", "心"][id];
 const R = id => [null, "人類", "獸類", "妖精", "龍類", "神族", null, null, "魔族", null, "機械族"][id];
 
+const N = num => (typeof(num) === "number" && num >= 1000) ? num.toLocaleString("en-US") : num;
+
 const ISTranslator = new Map([
   [1, ([v0]) => <>自身技能 CD -{v0}</>],
   [2, ([v0]) => <>該回合增加 {v0} 連擊 (Combo)</>],
@@ -22,14 +24,24 @@ const ISTranslator = new Map([
   [16, ([v0, v1, v2]) => <>發動攻擊前自身對敵方全體造成 {v0} 點{A(v2)}屬性傷害 {v1} 次</>],
   [17, ([v0]) => <>自身增加 {v0} 回合暴擊狀態</>],
   [18, ([v0]) => <>自身增加 {v0} 回合暴怒狀態</>],
-  [19, ([v0]) => <>自身增加 {v0} 回合神選狀態</>]
+  [19, ([v0]) => <>自身增加 {v0} 回合神選狀態</>],
+  [20, ([v0]) => <>自身技能 EP +{v0}</>],
+  [21, ([v0, v1]) => <>自身為{R(v1)}成員，自身技能 EP +{v0}</>],
+  [22, ([v0, v1]) => <>自身為{E(v1)}屬性成員，自身技能 EP +{v0}</>],
+  [23, ([v0, v1]) => <>{R(v1)}成員技能 CD -{v0}</>],
+  [24, ([v0, v1, v2]) => <>{R(v1)}及{R(v2)}成員技能 CD -{v0}</>],
+  [25, ([v0, v1]) => <>{E(v1)}屬性成員技能 CD -{v0}</>],
+  [26, ([v0, v1, v2]) => <>{E(v1)}及{E(v2)}屬性成員技能 CD -{v0}</>],
+  [27, ([v0]) => <>所有成員技能 CD -{v0}</>],
 ]);
 function instantSkillDesc(skillId, args) {
-  return ISTranslator.get(skillId)?.(args) ?? `CT_SKILL_INSTANT_${skillId}`;
+  // .map(N): ugly but working patch
+  return ISTranslator.get(skillId)?.(args.map(N)) ?? `CT_SKILL_INSTANT_${skillId}`;
 }
 function instantSkillDescWithMark(skillId, args, marks) {
   // Currently incompatible with the A function if the attribute is changed
-  return instantSkillDesc(skillId, args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
+  // .map(N): ugly but working patch
+  return instantSkillDesc(skillId, args.map(N).map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
 const SSTranslator = new Map([
@@ -88,7 +100,12 @@ const SSTranslator = new Map([
   [55, () => "將所有符石添加為自身種族符石"],
   [56, () => "自身屬性符石首批 1 粒即可發動消除"],
   [57, () => "自身屬性符石首批 2 粒相連即可發動消除"],
-  [58, () => "自身屬性符石首批 3 粒相連即可發動消除"]
+  [58, () => "自身屬性符石首批 3 粒相連即可發動消除"],
+  [60, () => "自身無視「L字限盾」"],
+  [61, () => "自身無視「T字限盾」"],
+  [62, () => "自身無視「敵人減傷狀態」"],
+  [63, () => "自身無視「首殺盾」"],
+  [64, () => "自身無視「力的印記」"],
 ]);
 function statusSkillDesc(skillId, args) {
   return SSTranslator.get(skillId)?.(args) ?? `CT_SKILL_STATUS_${skillId}`;
@@ -135,7 +152,7 @@ const TSTranslator = new Map([
   [34, ([v0]) => <>自身擊中敵人後魅惑敵人，持續 {v0} 回合</>],
   [35, ([v0]) => <>自身擊中敵人後暈擊敵人，持續 {v0} 回合</>],
   [36, ([v0]) => <>自身擊中敵人後使敵人進入睡眠狀態，持續 {v0} 回合</>],
-  [37, ([v0]) => <>自身擊中敵人後使敵人置身刀傷狀態，持續 {v0} 回合</>],
+  [37, ([v0]) => <>自身擊中敵人後使敵人置身刀傷狀態：每回合所受傷害 4 倍，持續 {v0} 回合</>],
   [38, ([v0, v1]) => <>自身擊中敵人後使敵人轉為{A(v0)}屬性，持續 {v1} 回合</>],
   [39, ([v0]) => <>敵人行動 CD +{v0}</>]
 ]);

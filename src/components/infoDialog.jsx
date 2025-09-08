@@ -51,7 +51,7 @@ const DiffListItem = ({label, lower, higher}) => (
       <br />
       <AddIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="success" />
       {higher}
-    </>)} secondaryTypographyProps={{sx: {ml: 0}}} />
+    </>)} slotProps={{secondary: {sx: {ml: 0}}}} />
   </ListItem>
 );
 
@@ -60,7 +60,7 @@ const NewListItem = ({label, item}) => (
     <ListItemText sx={{m: 0}} primary={label} secondary={(<>
       <AddIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="success" />
       {item}
-    </>)} secondaryTypographyProps={{sx: {ml: 0}}} />
+    </>)} slotProps={{secondary: {sx: {ml: 0}}}} />
   </ListItem>
 );
 
@@ -69,7 +69,7 @@ const RemoveListItem = ({label, item}) => (
     <ListItemText sx={{m: 0}} primary={label} secondary={(<>
       <RemoveIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="error" />
       {item}
-    </>)} secondaryTypographyProps={{sx: {ml: 0}}} />
+    </>)} slotProps={{secondary: {sx: {ml: 0}}}} />
   </ListItem>
 );
 
