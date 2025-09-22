@@ -3,7 +3,23 @@ import { InlineTypography } from "../components/inlineTypography";
 const A = id => ["無", "水", "火", "木", "光", "暗", "心"][id];
 const R = id => [null, "人類", "獸類", "妖精", "龍類", "神族", null, null, "魔族", null, "機械族"][id];
 
-const N = num => (typeof(num) === "number" && num >= 1000) ? num.toLocaleString("en-US") : num;
+function chineseNumber(num) {
+  const units = ["", "萬", "億", "兆"];
+
+  const parts = [];
+  for(let unitIdx = 0; unitIdx < units.length; ++unitIdx) {
+    const rem = num % 10000;
+    if(rem > 0) {
+      parts.push(`${rem} ${units[unitIdx]}`);
+    }
+    num = Math.floor(num / 10000);
+  }
+
+  parts.push("");
+  return parts.reverse().join(" ");
+}
+
+const N = num => (typeof(num) === "number" && num >= 10000) ? chineseNumber(num) : num;
 
 const ISTranslator = new Map([
   [1, ([v0]) => <>自身技能 CD -{v0}</>],
@@ -13,7 +29,7 @@ const ISTranslator = new Map([
   [5, ([v0]) => <>全隊攻擊力提升 {v0}%</>],
   [6, ([v0]) => <>自身增加 {v0} 回合亢奮狀態</>],
   [7, ([v0]) => <>提升 {v0}% 龍脈儀能量</>],
-  [8, ([v0]) => <>回復 {v0} 點生命力</>],
+  [8, ([v0]) => <>回復{v0}點生命力</>],  // v0 -> modified padding
   [9, () => "完全回復生命力"],
   [10, () => "解除自身疲憊狀態"],
   [11, () => "解除自身風壓狀態"],
@@ -21,7 +37,7 @@ const ISTranslator = new Map([
   [13, ([v0, v1]) => <>自身為{R(v1)}成員，自身技能 CD -{v0}</>],
   [14, ([v0, v1]) => <>自身為{A(v1)}屬性成員，自身技能 CD -{v0}</>],
   [15, () => "解除自身被封鎖的技能 (此技能無視封鎖技能)"],
-  [16, ([v0, v1, v2]) => <>發動攻擊前自身對敵方全體造成 {v0} 點{A(v2)}屬性傷害 {v1} 次</>],
+  [16, ([v0, v1, v2]) => <>發動攻擊前自身對敵方全體造成{v0}點{A(v2)}屬性傷害 {v1} 次</>],  // v0 -> modified padding
   [17, ([v0]) => <>自身增加 {v0} 回合暴擊狀態</>],
   [18, ([v0]) => <>自身增加 {v0} 回合暴怒狀態</>],
   [19, ([v0]) => <>自身增加 {v0} 回合神選狀態</>],
@@ -58,7 +74,7 @@ const SSTranslator = new Map([
   [11, ([v0]) => <>全隊攻擊力提升 {v0}%</>],
   [12, ([v0]) => <>自身回復力提升 {v0}%</>],
   [13, ([v0]) => <>全隊回復力提升 {v0}%</>],
-  [14, ([v0]) => <>回復 {v0} 點生命力</>],
+  [14, ([v0]) => <>回復{v0}點生命力</>],  // v0 -> modified padding
   [15, () => "自身無視「攻前盾」"],
   [16, () => "自身無視「三屬盾」"],
   [17, () => "自身無視「五屬盾」"],
@@ -108,11 +124,13 @@ const SSTranslator = new Map([
   [64, () => "自身無視「力的印記」"],
 ]);
 function statusSkillDesc(skillId, args) {
-  return SSTranslator.get(skillId)?.(args) ?? `CT_SKILL_STATUS_${skillId}`;
+  // .map(N): ugly but working patch
+  return SSTranslator.get(skillId)?.(args.map(N)) ?? `CT_SKILL_STATUS_${skillId}`;
 }
 function statusSkillDescWithMark(skillId, args, marks) {
   // Currently incompatible with the A function if the attribute is changed
-  return statusSkillDesc(skillId, args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
+  // .map(N): ugly but working patch
+  return statusSkillDesc(skillId, args.map(N).map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
 const TSTranslator = new Map([
