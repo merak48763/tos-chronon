@@ -71,7 +71,7 @@ function App() {
   return (<>
     <AppWrapper>
       {ready && (<>
-        <SeriesFilter value={seriesFilter} onChange={v => setSeriesFilter(v)} active={seriesFilterActive} onToggle={v => setSeriesFilterActive(v)} />
+        {/*<SeriesFilter value={seriesFilter} onChange={v => setSeriesFilter(v)} active={seriesFilterActive} onToggle={v => setSeriesFilterActive(v)} />*/}
         <StarFilter value={starFilter} onChange={v => setStarFilter(v)} active={starFilterActive} onToggle={v => setStarFilterActive(v)} />
         <AbilityCategoryFilter value={abilityCategoryFilter} onChange={v => setAbilityCategoryFilter(v)} active={abilityCategoryFilterActive} onToggle={v => setAbilityCategoryFilterActive(v)} />
         <CardList filteredCards={filteredCards} />
