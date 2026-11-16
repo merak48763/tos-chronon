@@ -1,9 +1,24 @@
+import type { ReactNode } from "react";
+
 import { InlineTypography } from "../components/inlineTypography";
 
-const A = id => ["無", "水", "火", "木", "光", "暗", "心"][id];
-const R = id => [null, "人類", "獸類", "妖精", "龍類", "神族", null, null, "魔族", null, "機械族"][id];
+const ATTRIBUTES = ["無", "水", "火", "木", "光", "暗", "心"];
+const RACES = [null, "人類", "獸類", "妖精", "龍類", "神族", null, null, "魔族", null, "機械族"];
 
-function chineseNumber(num) {
+function A(id: ReactNode): ReactNode {
+  if(typeof(id) === "number") {
+    return ATTRIBUTES[id];
+  }
+  return id;
+}
+function R(id: ReactNode): ReactNode {
+  if(typeof(id) === "number") {
+    return RACES[id];
+  }
+  return id;
+}
+
+function chineseNumber(num: number) {
   const units = ["", "萬", "億", "兆"];
 
   const parts = [];
@@ -19,9 +34,11 @@ function chineseNumber(num) {
   return parts.reverse().join(" ");
 }
 
-const N = num => (typeof(num) === "number" && num >= 10000) ? chineseNumber(num) : num;
+const N = (num: ReactNode) => (typeof(num) === "number" && num >= 10000) ? chineseNumber(num) : num;
 
-const ISTranslator = new Map([
+type TranslatorFunction = (args: ReactNode[]) => ReactNode;
+
+const ISTranslator = new Map<number, TranslatorFunction>([
   [1, ([v0]) => <>自身技能 CD -{v0}</>],
   [2, ([v0]) => <>該回合增加 {v0} 連擊 (Combo)</>],
   [3, ([v0]) => <>自身進入 {v0} 回合亢奮狀態</>],
@@ -43,24 +60,24 @@ const ISTranslator = new Map([
   [19, ([v0]) => <>自身增加 {v0} 回合神選狀態</>],
   [20, ([v0]) => <>自身技能 EP +{v0}</>],
   [21, ([v0, v1]) => <>自身為{R(v1)}成員，自身技能 EP +{v0}</>],
-  [22, ([v0, v1]) => <>自身為{E(v1)}屬性成員，自身技能 EP +{v0}</>],
+  [22, ([v0, v1]) => <>自身為{A(v1)}屬性成員，自身技能 EP +{v0}</>],
   [23, ([v0, v1]) => <>{R(v1)}成員技能 CD -{v0}</>],
   [24, ([v0, v1, v2]) => <>{R(v1)}及{R(v2)}成員技能 CD -{v0}</>],
-  [25, ([v0, v1]) => <>{E(v1)}屬性成員技能 CD -{v0}</>],
-  [26, ([v0, v1, v2]) => <>{E(v1)}及{E(v2)}屬性成員技能 CD -{v0}</>],
+  [25, ([v0, v1]) => <>{A(v1)}屬性成員技能 CD -{v0}</>],
+  [26, ([v0, v1, v2]) => <>{A(v1)}及{A(v2)}屬性成員技能 CD -{v0}</>],
   [27, ([v0]) => <>所有成員技能 CD -{v0}</>],
 ]);
-function instantSkillDesc(skillId, args) {
+function instantSkillDesc(skillId: number, args?: ReactNode[]) {
   // .map(N): ugly but working patch
-  return ISTranslator.get(skillId)?.(args.map(N)) ?? `CT_SKILL_INSTANT_${skillId}`;
+  return ISTranslator.get(skillId)?.(args?.map(N) ?? []) ?? `CT_SKILL_INSTANT_${skillId}`;
 }
-function instantSkillDescWithMark(skillId, args, marks) {
+function instantSkillDescWithMark(skillId: number, args: number[], marks: boolean[]) {
   // Currently incompatible with the A function if the attribute is changed
   // .map(N): ugly but working patch
   return instantSkillDesc(skillId, args.map(N).map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
-const SSTranslator = new Map([
+const SSTranslator = new Map<number, TranslatorFunction>([
   [1, () => "自身不會被封鎖主動技能"],
   [2, () => "隊伍不會被封鎖主動技能"],
   [3, ([v0, v1, v2]) => <>自身以 {v0}% 攻擊力追打{A(v2)}屬性攻擊 {v1} 次</>],
@@ -123,17 +140,17 @@ const SSTranslator = new Map([
   [63, () => "自身無視「首殺盾」"],
   [64, () => "自身無視「力的印記」"],
 ]);
-function statusSkillDesc(skillId, args) {
+function statusSkillDesc(skillId: number, args?: ReactNode[]) {
   // .map(N): ugly but working patch
-  return SSTranslator.get(skillId)?.(args.map(N)) ?? `CT_SKILL_STATUS_${skillId}`;
+  return SSTranslator.get(skillId)?.(args?.map(N) ?? []) ?? `CT_SKILL_STATUS_${skillId}`;
 }
-function statusSkillDescWithMark(skillId, args, marks) {
+function statusSkillDescWithMark(skillId: number, args: number[], marks: boolean[]) {
   // Currently incompatible with the A function if the attribute is changed
   // .map(N): ugly but working patch
   return statusSkillDesc(skillId, args.map(N).map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
-const TSTranslator = new Map([
+const TSTranslator = new Map<number, TranslatorFunction>([
   [1, ([v0]) => <>自身攻擊力提升 {v0}%</>],
   [2, ([v0, v1, v2]) => <>自身以 {v0}% 攻擊力追打{A(v2)}屬性攻擊 {v1} 次</>],
   [3, () => "自身無視「攻前盾」"],
@@ -180,19 +197,19 @@ const TSTranslator = new Map([
   [44, () => "自身無視「首殺盾」"],
   [45, () => "自身無視「力的印記」"],
 ]);
-function triggeredSkillDesc(skillId, args) {
-  return TSTranslator.get(skillId)?.(args) ?? `CT_SKILL_TRIGGERED_${skillId}`;
+export function triggeredSkillDesc(skillId: number, args?: ReactNode[]) {
+  return TSTranslator.get(skillId)?.(args ?? []) ?? `CT_SKILL_TRIGGERED_${skillId}`;
 }
-function triggeredSkillDescWithMark(skillId, args, marks) {
+export function triggeredSkillDescWithMark(skillId: number, args: number[], marks: boolean[]) {
   // Currently incompatible with the A function if the attribute is changed
   return triggeredSkillDesc(skillId, args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
 }
 
-function toRomanNumerical(num) {
+export function toRomanNumerical(num: number) {
   if(isNaN(num)) {
-    return NaN;
+    return "NaN";
   }
-  const digits = (+num).toString().split("");
+  const digits = num.toString().split("");
   const keys = [
     "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM",
     "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC",
@@ -200,7 +217,7 @@ function toRomanNumerical(num) {
   ];
   let result = "";
   for(let i=2; i>=0; --i) {
-    result = (keys[parseInt(digits.pop()) + i*10] ?? "") + result;
+    result = (keys[parseInt(digits.pop()!) + i*10] ?? "") + result;
   }
   return result;
 }
@@ -208,6 +225,4 @@ function toRomanNumerical(num) {
 export {
   instantSkillDesc, instantSkillDescWithMark,
   statusSkillDesc, statusSkillDescWithMark,
-  triggeredSkillDesc, triggeredSkillDescWithMark,
-  toRomanNumerical
 };

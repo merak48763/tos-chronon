@@ -1,8 +1,10 @@
 import { useMemo } from "react";
+import type { PropsWithChildren, FC } from "react";
 import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
+
 import { useConfig } from "../config/provider";
 
-const Provider = ({children}) => {
+const Provider: FC<PropsWithChildren<{}>> = ({children}) => {
   const {darkMode} = useConfig();
 
   const theme = useMemo(() => createTheme({

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import type { FC, ReactNode } from "react";
 import {
   Container,
   Button,
@@ -18,6 +19,7 @@ import {
   Tooltip,
   Typography
 } from "@mui/material";
+import type { SliderProps } from "@mui/material";
 import {
   ImageOutlined as ImageIcon,
   DescriptionOutlined as ListIcon,
@@ -26,8 +28,9 @@ import {
   RemoveCircleOutlineOutlined as RemoveIcon,
   KeyboardDoubleArrowRightOutlined as ArrowRightIcon
 } from "@mui/icons-material";
-import { InlineTypography } from "./inlineTypography";
 import styled from "@emotion/styled";
+
+import { InlineTypography } from "./inlineTypography";
 import { useConfig } from "../config/provider";
 import { useChrononInfo } from "../data/chrononInfo";
 import {
@@ -36,14 +39,32 @@ import {
   triggeredSkillDesc, triggeredSkillDescWithMark,
   toRomanNumerical
 } from "../data/translation";
+import type { ChrononSkill } from "../data/fetchedData";
 
-const ChipDivider = ({label}) => (
+interface ChipDividerProps {
+  label: ReactNode,
+}
+
+const ChipDivider: FC<ChipDividerProps> = ({label}) => (
   <Divider textAlign="left" sx={{mt: 1.2, mb: 0.8, fontWeight: 600, "&::before": {flex: "0 0 8px"}, "&>.MuiDivider-wrapper": {px: 0.3}}}>
     <Chip variant="outlined" color="primary" label={label} />
   </Divider>
 );
 
-const DiffListItem = ({label, lower, higher}) => (
+interface ItemBaseProps {
+  label: ReactNode,
+}
+
+interface DiffListItemProps extends ItemBaseProps {
+  lower: ReactNode,
+  higher: ReactNode,
+}
+
+interface HighlightListItemProps extends ItemBaseProps {
+  item: ReactNode,
+}
+
+const DiffListItem: FC<DiffListItemProps> = ({label, lower, higher}) => (
   <ListItem disableGutters>
     <ListItemText sx={{m: 0}} primary={label} secondary={(<>
       <RemoveIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="error" />
@@ -55,7 +76,7 @@ const DiffListItem = ({label, lower, higher}) => (
   </ListItem>
 );
 
-const NewListItem = ({label, item}) => (
+const AdditionListItem: FC<HighlightListItemProps> = ({label, item}) => (
   <ListItem disableGutters>
     <ListItemText sx={{m: 0}} primary={label} secondary={(<>
       <AddIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="success" />
@@ -64,7 +85,7 @@ const NewListItem = ({label, item}) => (
   </ListItem>
 );
 
-const RemoveListItem = ({label, item}) => (
+const RemovalListItem: FC<HighlightListItemProps> = ({label, item}) => (
   <ListItem disableGutters>
     <ListItemText sx={{m: 0}} primary={label} secondary={(<>
       <RemoveIcon fontSize="inherit" sx={{verticalAlign: "middle", mr: 0.6}} color="error" />
@@ -73,14 +94,22 @@ const RemoveListItem = ({label, item}) => (
   </ListItem>
 );
 
-const NumberChangeText = ({label, lower, higher, modifier, postfix}) => (
+interface NumberChangeTextProps {
+  label: ReactNode,
+  lower: ReactNode,
+  higher: ReactNode,
+  modifier?: ReactNode,
+  suffix?: ReactNode,
+}
+
+const NumberChangeText: FC<NumberChangeTextProps> = ({label, lower, higher, modifier, suffix}) => (
   lower !== higher ? (
     <Typography>
       {label}：
       <InlineTypography color="primary">{modifier}{lower}</InlineTypography>
       <ArrowRightIcon fontSize="inherit" sx={{verticalAlign: "middle", mx: 0.6}} />
       <InlineTypography color="primary">{modifier}{higher}</InlineTypography>
-      {postfix}
+      {suffix}
     </Typography>
   ) : null
 );
@@ -95,10 +124,38 @@ const ArtworkImg = styled.img`
   width: 100%;
 `;
 
-const InfoDialog = ({open, onClose, chrononId}) => {
+type SkillType = ("instant" | "status" | "triggered");
+
+type SkillDiffData = (
+  & {
+    key: string,
+    type: SkillType,
+    skill: number,
+  }
+  & (
+    | {
+      mode: "add" | "remove",
+      args: number[],
+    }
+    | {
+      mode: "change",
+      lowerArgs: number[],
+      higherArgs: number[],
+      diff: boolean[],
+    }
+  )
+)
+
+interface InfoDialogProps {
+  open: boolean,
+  onClose: () => void,
+  chrononId: number,
+}
+
+export const InfoDialog: FC<InfoDialogProps> = ({open, onClose, chrononId}) => {
   const [level, setLevel] = useState(1);
   const {getCardById, getSeriesNameById, getSeriesMarbelById} = useChrononInfo();
-  const displayingCard = useMemo(() => getCardById(chrononId), [chrononId, getCardById]);
+  const displayingCard = useMemo(() => getCardById(chrononId)!, [chrononId, getCardById]);
 
   const levelList = useMemo(() => {
     return [...Array(displayingCard.maxLevel)].map((_, i) => i + 1);
@@ -142,11 +199,11 @@ const InfoDialog = ({open, onClose, chrononId}) => {
     const [lowerLevel, higherLevel] = levelRange;
     if(higherLevel > displayingCard.maxLevel) return [];
 
-    const mapper = sl => new Map(sl.map(s => [s.skill, s.args]));
-    const compareArgList = (a1, a2) => a1.map((e, i) => e !== a2[i]);
+    const mapper = (sl: ChrononSkill[]) => new Map(sl.map(s => [s.skill, s.args ?? []]));
+    const compareArgList = (a1: number[], a2: number[]) => a1.map((e, i) => e !== a2[i]);
 
-    const result = [];
-    const compareSkills = skillType => {
+    const result = [] as SkillDiffData[];
+    const compareSkills = (skillType: SkillType) => {
       const lowerSkill = displayingCard[`${skillType}Skill`][lowerLevel-1];
       const higherSkill = displayingCard[`${skillType}Skill`][higherLevel-1];
       const lowerInstant = mapper(lowerSkill);
@@ -175,7 +232,7 @@ const InfoDialog = ({open, onClose, chrononId}) => {
               skill: s,
               lowerArgs,
               higherArgs,
-              diff: argDiff
+              diff: argDiff,
             });
           }
         }
@@ -185,7 +242,7 @@ const InfoDialog = ({open, onClose, chrononId}) => {
             mode: "add",
             type: skillType,
             skill: s,
-            args: higherArgs
+            args: higherArgs,
           });
         }
       }
@@ -200,11 +257,15 @@ const InfoDialog = ({open, onClose, chrononId}) => {
   const sliderMarks = useMemo(() => {
     return levelList.map(lv => ({
       value: lv,
-      label: lv === 1 ? "Lv. 1" : lv === displayingCard.maxLevel ? `Lv. ${lv}` : undefined
+      label: (
+        lv === 1 ? "Lv. 1"
+        : lv === displayingCard.maxLevel ? `Lv. ${lv}`
+        : undefined
+      ),
     }));
   }, [levelList, displayingCard.maxLevel]);
 
-  const handleSliderChange = (_, newValue, activeThumb) => {
+  const handleSliderChange: SliderProps['onChange'] = (_, newValue, activeThumb) => {
     if(!Array.isArray(newValue)) {
       return;
     }
@@ -242,19 +303,19 @@ const InfoDialog = ({open, onClose, chrononId}) => {
             <Typography>{getSeriesMarbelById(displayingCard.series)}：{displayingCard.exp[levelRange[1]-1] - displayingCard.exp[levelRange[0]-1]} 個</Typography>
             <ChipDivider label="數值變化" />
             <NumberChangeText label="進場FP" lower={displayingCard.initFp[levelRange[0]-1]} higher={displayingCard.initFp[levelRange[1]-1]} />
-            <NumberChangeText label="每次消除" postfix=" FP" lower={displayingCard.fpCharge[levelRange[0]-1]} higher={displayingCard.fpCharge[levelRange[1]-1]} modifier="+" />
+            <NumberChangeText label="每次消除" suffix=" FP" lower={displayingCard.fpCharge[levelRange[0]-1]} higher={displayingCard.fpCharge[levelRange[1]-1]} modifier="+" />
             <ChipDivider label="能力變化" />
             <List disablePadding>
               {skillDifferences.map(d => {
                 if(d.mode === "add") {
                   if(d.type === "instant") {
-                    return <NewListItem key={d.key} label="獲得即時效果" item={instantSkillDesc(d.skill, d.args)} />;
+                    return <AdditionListItem key={d.key} label="獲得即時效果" item={instantSkillDesc(d.skill, d.args)} />;
                   }
                   else if(d.type === "status") {
-                    return <NewListItem key={d.key} label="獲得回合效果" item={statusSkillDesc(d.skill, d.args)} />;
+                    return <AdditionListItem key={d.key} label="獲得回合效果" item={statusSkillDesc(d.skill, d.args)} />;
                   }
                   else if(d.type === "triggered") {
-                    return <NewListItem key={d.key} label="獲得連動效果" item={triggeredSkillDesc(d.skill, d.args)} />;
+                    return <AdditionListItem key={d.key} label="獲得連動效果" item={triggeredSkillDesc(d.skill, d.args)} />;
                   }
                 }
                 else if(d.mode === "change") {
@@ -270,13 +331,13 @@ const InfoDialog = ({open, onClose, chrononId}) => {
                 }
                 else if(d.mode === "remove") {
                   if(d.type === "instant") {
-                    return <RemoveListItem key={d.key} label="移除即時效果" item={instantSkillDesc(d.skill, d.args)} />;
+                    return <RemovalListItem key={d.key} label="移除即時效果" item={instantSkillDesc(d.skill, d.args)} />;
                   }
                   else if(d.type === "status") {
-                    return <RemoveListItem key={d.key} label="移除回合效果" item={statusSkillDesc(d.skill, d.args)} />;
+                    return <RemovalListItem key={d.key} label="移除回合效果" item={statusSkillDesc(d.skill, d.args)} />;
                   }
                   else if(d.type === "triggered") {
-                    return <RemoveListItem key={d.key} label="移除連動效果" item={triggeredSkillDesc(d.skill, d.args)} />;
+                    return <RemovalListItem key={d.key} label="移除連動效果" item={triggeredSkillDesc(d.skill, d.args)} />;
                   }
                 }
                 return <ListItem key={d.key}><Typography>N/A</Typography></ListItem>;
@@ -333,7 +394,7 @@ const InfoDialog = ({open, onClose, chrononId}) => {
                   vertical: "bottom",
                   horizontal: "left"
                 }
-              }} value={level} onChange={e => setLevel(e.target.value)}>
+              }} value={level} onChange={e => setLevel(e.target.value as number)}>
                 {levelList.map(lv => (
                   <MenuItem key={lv} value={lv}>Lv. {lv}</MenuItem>
                 ))}
@@ -346,5 +407,3 @@ const InfoDialog = ({open, onClose, chrononId}) => {
     </Dialog>
   );
 }
-
-export { InfoDialog };

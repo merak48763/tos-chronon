@@ -1,16 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
-import { useChrononInfo } from "./data/chrononInfo";
-import { CardList } from "./components/cardList";
-import { LoadingDialog } from "./components/loadingDialog";
-import { StarFilter, SeriesFilter, AbilityCategoryFilter } from "./components/filter";
 import { Fab, Snackbar } from "@mui/material";
 import {
   Brightness6Outlined as ThemeIcon,
   DataSaverOffOutlined as SaveDataOffIcon,
   DataSaverOnOutlined as SaveDataOnIcon
 } from "@mui/icons-material";
-import { useConfig } from "./config/provider";
 import styled from "@emotion/styled";
+
+import { CardList } from "./components/cardList";
+import { useConfig } from "./config/provider";
+import { StarFilter, SeriesFilter, AbilityCategoryFilter } from "./components/filter";
+import { LoadingDialog } from "./components/loadingDialog";
+import { useChrononInfo } from "./data/chrononInfo";
+import { SortingMethod } from "./data/filterEngine";
 
 const AppWrapper = styled.div`
   padding: 16px;
@@ -51,20 +53,19 @@ function App() {
   }
 
   const {ready, filter} = useChrononInfo();
-  const [starFilter, setStarFilter] = useState([]);
+  const [starFilter, setStarFilter] = useState([] as number[]);
   const [starFilterActive, setStarFilterActive] = useState(false);
-  const [seriesFilter, setSeriesFilter] = useState([]);
+  const [seriesFilter, setSeriesFilter] = useState([] as number[]);
   const [seriesFilterActive, setSeriesFilterActive] = useState(false);
-  const [abilityCategoryFilter, setAbilityCategoryFilter] = useState([]);
+  const [abilityCategoryFilter, setAbilityCategoryFilter] = useState([] as number[]);
   const [abilityCategoryFilterActive, setAbilityCategoryFilterActive] = useState(false);
 
-  //eslint-disable-next-line no-unused-vars
-  const [sortingMethod, setSortingMethod] = useState(0);
+  const [sortingMethod, setSortingMethod] = useState(SortingMethod.BY_ID);
 
   const filteredCards = useMemo(() => filter({
-    seriesFilter: (seriesFilter.length > 0 && seriesFilterActive) ? seriesFilter : null,
-    starFilter: (starFilter.length > 0 && starFilterActive) ? starFilter : null,
-    abilityCategoryFilter: (abilityCategoryFilter.length > 0 && abilityCategoryFilterActive) ? abilityCategoryFilter : null,
+    seriesFilter: (seriesFilter.length > 0 && seriesFilterActive) ? seriesFilter : undefined,
+    starFilter: (starFilter.length > 0 && starFilterActive) ? starFilter : undefined,
+    abilityCategoryFilter: (abilityCategoryFilter.length > 0 && abilityCategoryFilterActive) ? abilityCategoryFilter : undefined,
     sortingMethod
   }), [seriesFilter, seriesFilterActive, starFilter, starFilterActive, abilityCategoryFilter, abilityCategoryFilterActive, sortingMethod, filter]);
 

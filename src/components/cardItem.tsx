@@ -1,3 +1,4 @@
+import type { FC, MouseEventHandler } from "react";
 import styled from "@emotion/styled";
 
 import frame1 from "../images/frame1.png";
@@ -9,9 +10,9 @@ const frames = new Map([
   [3, frame3]
 ]);
 
-const cardImageUrl = (sid, scid) => `https://merak48763.github.io/tool_data/image/chronon/${sid}_${scid}.png`;
+const cardImageUrl = (sid: number, scid: number) => `https://merak48763.github.io/tool_data/image/chronon/${sid}_${scid}.png`;
 
-const frameImageUrl = star => frames.get(star);
+const frameImageUrl = (star: number) => frames.get(star)!;
 
 const CardWrapper = styled.div`
   position: relative;
@@ -44,7 +45,24 @@ const CardLabel = styled.div`
   font-family: Roboto;
 `;
 
-const CardItem = ({id, sid, scid, star, onClick}) => {
+interface CardItemProps {
+  /**
+   * global unique card ID
+   */
+  id: number,
+  /**
+   * series ID
+   */
+  sid: number,
+  /**
+   * card ID within the series
+   */
+  scid: number,
+  star: number,
+  onClick?: MouseEventHandler<HTMLImageElement>,
+}
+
+export const CardItem: FC<CardItemProps> = ({id, sid, scid, star, onClick}) => {
   return (
     <CardWrapper>
       <CardImage src={cardImageUrl(sid, scid)} alt="" />
@@ -53,5 +71,3 @@ const CardItem = ({id, sid, scid, star, onClick}) => {
     </CardWrapper>
   );
 }
-
-export { CardItem };
