@@ -1,0 +1,19 @@
+{
+  "indentWidth": 2,
+  "lineWidth": 120,
+  "newLineKind": "auto",
+  "useTabs": false,
+  "typescript": {
+    "quoteStyle": "preferDouble",
+    "useBraces": "always"
+  },
+  "includes": [
+    "src/**/*.{ts,tsx}"
+  ],
+  "excludes": [
+    "**/node_modules"
+  ],
+  "plugins": [
+    "npm:@dprint/typescript@0.101.0"
+  ]
+}

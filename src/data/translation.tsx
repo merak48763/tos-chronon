@@ -6,13 +6,13 @@ const ATTRIBUTES = ["無", "水", "火", "木", "光", "暗", "心"];
 const RACES = [null, "人類", "獸類", "妖精", "龍類", "神族", null, null, "魔族", null, "機械族"];
 
 function A(id: ReactNode): ReactNode {
-  if(typeof(id) === "number") {
+  if (typeof id === "number") {
     return ATTRIBUTES[id];
   }
   return id;
 }
 function R(id: ReactNode): ReactNode {
-  if(typeof(id) === "number") {
+  if (typeof id === "number") {
     return RACES[id];
   }
   return id;
@@ -22,9 +22,9 @@ function chineseNumber(num: number) {
   const units = ["", "萬", "億", "兆"];
 
   const parts = [];
-  for(let unitIdx = 0; unitIdx < units.length; ++unitIdx) {
+  for (let unitIdx = 0; unitIdx < units.length; ++unitIdx) {
     const rem = num % 10000;
-    if(rem > 0) {
+    if (rem > 0) {
       parts.push(`${rem} ${units[unitIdx]}`);
     }
     num = Math.floor(num / 10000);
@@ -34,7 +34,7 @@ function chineseNumber(num: number) {
   return parts.reverse().join(" ");
 }
 
-const N = (num: ReactNode) => (typeof(num) === "number" && num >= 10000) ? chineseNumber(num) : num;
+const N = (num: ReactNode) => (typeof num === "number" && num >= 10000) ? chineseNumber(num) : num;
 
 type TranslatorFunction = (args: ReactNode[]) => ReactNode;
 
@@ -46,7 +46,7 @@ const ISTranslator = new Map<number, TranslatorFunction>([
   [5, ([v0]) => <>全隊攻擊力提升 {v0}%</>],
   [6, ([v0]) => <>自身增加 {v0} 回合亢奮狀態</>],
   [7, ([v0]) => <>提升 {v0}% 龍脈儀能量</>],
-  [8, ([v0]) => <>回復{v0}點生命力</>],  // v0 -> modified padding
+  [8, ([v0]) => <>回復{v0}點生命力</>], // v0 -> modified padding
   [9, () => "完全回復生命力"],
   [10, () => "解除自身疲憊狀態"],
   [11, () => "解除自身風壓狀態"],
@@ -54,7 +54,7 @@ const ISTranslator = new Map<number, TranslatorFunction>([
   [13, ([v0, v1]) => <>自身為{R(v1)}成員，自身技能 CD -{v0}</>],
   [14, ([v0, v1]) => <>自身為{A(v1)}屬性成員，自身技能 CD -{v0}</>],
   [15, () => "解除自身被封鎖的技能 (此技能無視封鎖技能)"],
-  [16, ([v0, v1, v2]) => <>發動攻擊前自身對敵方全體造成{v0}點{A(v2)}屬性傷害 {v1} 次</>],  // v0 -> modified padding
+  [16, ([v0, v1, v2]) => <>發動攻擊前自身對敵方全體造成{v0}點{A(v2)}屬性傷害 {v1} 次</>], // v0 -> modified padding
   [17, ([v0]) => <>自身增加 {v0} 回合暴擊狀態</>],
   [18, ([v0]) => <>自身增加 {v0} 回合暴怒狀態</>],
   [19, ([v0]) => <>自身增加 {v0} 回合神選狀態</>],
@@ -74,7 +74,10 @@ function instantSkillDesc(skillId: number, args?: ReactNode[]) {
 function instantSkillDescWithMark(skillId: number, args: number[], marks: boolean[]) {
   // Currently incompatible with the A function if the attribute is changed
   // .map(N): ugly but working patch
-  return instantSkillDesc(skillId, args.map(N).map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
+  return instantSkillDesc(
+    skillId,
+    args.map(N).map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg),
+  );
 }
 
 const SSTranslator = new Map<number, TranslatorFunction>([
@@ -91,7 +94,7 @@ const SSTranslator = new Map<number, TranslatorFunction>([
   [11, ([v0]) => <>全隊攻擊力提升 {v0}%</>],
   [12, ([v0]) => <>自身回復力提升 {v0}%</>],
   [13, ([v0]) => <>全隊回復力提升 {v0}%</>],
-  [14, ([v0]) => <>回復{v0}點生命力</>],  // v0 -> modified padding
+  [14, ([v0]) => <>回復{v0}點生命力</>], // v0 -> modified padding
   [15, () => "自身無視「攻前盾」"],
   [16, () => "自身無視「三屬盾」"],
   [17, () => "自身無視「五屬盾」"],
@@ -147,7 +150,10 @@ function statusSkillDesc(skillId: number, args?: ReactNode[]) {
 function statusSkillDescWithMark(skillId: number, args: number[], marks: boolean[]) {
   // Currently incompatible with the A function if the attribute is changed
   // .map(N): ugly but working patch
-  return statusSkillDesc(skillId, args.map(N).map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
+  return statusSkillDesc(
+    skillId,
+    args.map(N).map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg),
+  );
 }
 
 const TSTranslator = new Map<number, TranslatorFunction>([
@@ -170,8 +176,16 @@ const TSTranslator = new Map<number, TranslatorFunction>([
   [17, ([v0]) => <>自身增加 {v0} EP</>],
   [18, ([v0, v1]) => <>自身以 {v0}% 攻擊力追打五屬性攻擊各 {v1} 次</>],
   [19, () => "完全回復生命力"],
-  [20, ([v0, v1]) => <>回合結束時，<br />將單數直行的符石轉化為{A(v0)}強化符石，<br />將雙數直行的符石轉化為{A(v1)}強化符石</>],
-  [21, ([v0, v1]) => <>回合結束時，<br />將單數橫行的符石轉化為{A(v0)}強化符石，<br />將雙數橫行的符石轉化為{A(v1)}強化符石</>],
+  [20, ([v0, v1]) => (
+    <>
+      回合結束時，<br />將單數直行的符石轉化為{A(v0)}強化符石，<br />將雙數直行的符石轉化為{A(v1)}強化符石
+    </>
+  )],
+  [21, ([v0, v1]) => (
+    <>
+      回合結束時，<br />將單數橫行的符石轉化為{A(v0)}強化符石，<br />將雙數橫行的符石轉化為{A(v1)}強化符石
+    </>
+  )],
   [22, () => "自身無視「首消粒數盾」"],
   [23, () => "自身無視「首消屬性組數符石盾」"],
   [24, () => "自身無視「首消相同種類盾」"],
@@ -202,27 +216,54 @@ export function triggeredSkillDesc(skillId: number, args?: ReactNode[]) {
 }
 export function triggeredSkillDescWithMark(skillId: number, args: number[], marks: boolean[]) {
   // Currently incompatible with the A function if the attribute is changed
-  return triggeredSkillDesc(skillId, args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg));
+  return triggeredSkillDesc(
+    skillId,
+    args.map((arg, i) => marks[i] ? <InlineTypography color="primary">{arg}</InlineTypography> : arg),
+  );
 }
 
 export function toRomanNumerical(num: number) {
-  if(isNaN(num)) {
+  if (isNaN(num)) {
     return "NaN";
   }
   const digits = num.toString().split("");
   const keys = [
-    "", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM",
-    "", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC",
-    "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"
+    "",
+    "C",
+    "CC",
+    "CCC",
+    "CD",
+    "D",
+    "DC",
+    "DCC",
+    "DCCC",
+    "CM",
+    "",
+    "X",
+    "XX",
+    "XXX",
+    "XL",
+    "L",
+    "LX",
+    "LXX",
+    "LXXX",
+    "XC",
+    "",
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V",
+    "VI",
+    "VII",
+    "VIII",
+    "IX",
   ];
   let result = "";
-  for(let i=2; i>=0; --i) {
-    result = (keys[parseInt(digits.pop()!) + i*10] ?? "") + result;
+  for (let i = 2; i >= 0; --i) {
+    result = (keys[parseInt(digits.pop()!) + i * 10] ?? "") + result;
   }
   return result;
 }
 
-export {
-  instantSkillDesc, instantSkillDescWithMark,
-  statusSkillDesc, statusSkillDescWithMark,
-};
+export { instantSkillDesc, instantSkillDescWithMark, statusSkillDesc, statusSkillDescWithMark };

@@ -1,5 +1,5 @@
-import type { FC, MouseEventHandler } from "react";
 import styled from "@emotion/styled";
+import type { FC, MouseEventHandler } from "react";
 
 import frame1 from "../images/frame1.png";
 import frame2 from "../images/frame2.png";
@@ -7,10 +7,11 @@ import frame3 from "../images/frame3.png";
 const frames = new Map([
   [1, frame1],
   [2, frame2],
-  [3, frame3]
+  [3, frame3],
 ]);
 
-const cardImageUrl = (sid: number, scid: number) => `https://merak48763.github.io/tool_data/image/chronon/${sid}_${scid}.png`;
+const cardImageUrl = (sid: number, scid: number) =>
+  `https://merak48763.github.io/tool_data/image/chronon/${sid}_${scid}.png`;
 
 const frameImageUrl = (star: number) => frames.get(star)!;
 
@@ -49,20 +50,20 @@ interface CardItemProps {
   /**
    * global unique card ID
    */
-  id: number,
+  id: number;
   /**
    * series ID
    */
-  sid: number,
+  sid: number;
   /**
    * card ID within the series
    */
-  scid: number,
-  star: number,
-  onClick?: MouseEventHandler<HTMLImageElement>,
+  scid: number;
+  star: number;
+  onClick?: MouseEventHandler<HTMLImageElement>;
 }
 
-export const CardItem: FC<CardItemProps> = ({id, sid, scid, star, onClick}) => {
+export const CardItem: FC<CardItemProps> = ({ id, sid, scid, star, onClick }) => {
   return (
     <CardWrapper>
       <CardImage src={cardImageUrl(sid, scid)} alt="" />
@@ -70,4 +71,4 @@ export const CardItem: FC<CardItemProps> = ({id, sid, scid, star, onClick}) => {
       <CardLabel>{id}</CardLabel>
     </CardWrapper>
   );
-}
+};

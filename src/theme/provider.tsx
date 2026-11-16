@@ -1,30 +1,30 @@
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import type { FC, PropsWithChildren } from "react";
 import { useMemo } from "react";
-import type { PropsWithChildren, FC } from "react";
-import { createTheme, ThemeProvider, CssBaseline } from "@mui/material";
 
 import { useConfig } from "../config/provider";
 
-const Provider: FC<PropsWithChildren<{}>> = ({children}) => {
-  const {darkMode} = useConfig();
+const Provider: FC<PropsWithChildren<{}>> = ({ children }) => {
+  const { darkMode } = useConfig();
 
   const theme = useMemo(() => createTheme({
     palette: {
-      mode: darkMode ? "dark" : "light"
+      mode: darkMode ? "dark" : "light",
     },
     typography: {
       button: {
-        textTransform: "none"
-      }
+        textTransform: "none",
+      },
     },
     components: {
       MuiDialog: {
         styleOverrides: {
           paper: {
-            height: "calc(100% - 64px)"
-          }
-        }
-      }
-    }
+            height: "calc(100% - 64px)",
+          },
+        },
+      },
+    },
   }), [darkMode]);
 
   return (
@@ -33,6 +33,6 @@ const Provider: FC<PropsWithChildren<{}>> = ({children}) => {
       {children}
     </ThemeProvider>
   );
-}
+};
 
 export default Provider;

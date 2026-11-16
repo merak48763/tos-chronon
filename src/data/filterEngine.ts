@@ -9,7 +9,7 @@ function union<T>(s1: Set<T>, s2: Set<T>) {
 function intersect<T>(s1: Set<T>, s2: Set<T>) {
   const result = new Set<T>();
   s1.forEach(v => {
-    if(s2?.has(v)) {
+    if (s2?.has(v)) {
       result.add(v);
     }
   });
@@ -17,15 +17,15 @@ function intersect<T>(s1: Set<T>, s2: Set<T>) {
 }
 
 export interface FilterEngineParams {
-  universe: Iterable<number>,
-  starIndex: Map<number, Set<number>>,
-  starFilter?: number[],
-  seriesIndex: Map<number, Set<number>>,
-  seriesFilter?: number[],
-  abilityCategoryIndex: Map<number, Set<number>>,
-  abilityCategoryFilter?: number[],
-  sortingMethod?: SortingMethod,
-  cardLookup: Map<number, ChrononCard>,
+  universe: Iterable<number>;
+  starIndex: Map<number, Set<number>>;
+  starFilter?: number[];
+  seriesIndex: Map<number, Set<number>>;
+  seriesFilter?: number[];
+  abilityCategoryIndex: Map<number, Set<number>>;
+  abilityCategoryFilter?: number[];
+  sortingMethod?: SortingMethod;
+  cardLookup: Map<number, ChrononCard>;
 }
 
 export const enum SortingMethod {
@@ -34,15 +34,19 @@ export const enum SortingMethod {
 }
 
 export function filter({
-    universe,
-    starIndex, starFilter,
-    seriesIndex, seriesFilter,
-    abilityCategoryIndex, abilityCategoryFilter,
-    sortingMethod, cardLookup,
-  }: FilterEngineParams) {
+  universe,
+  starIndex,
+  starFilter,
+  seriesIndex,
+  seriesFilter,
+  abilityCategoryIndex,
+  abilityCategoryFilter,
+  sortingMethod,
+  cardLookup,
+}: FilterEngineParams) {
   let result = new Set(universe);
 
-  if(starFilter) {
+  if (starFilter) {
     let stageResult = new Set<number>();
     starFilter.forEach(k => {
       stageResult = union(stageResult, starIndex.get(k)!);
@@ -50,7 +54,7 @@ export function filter({
     result = intersect(result, stageResult);
   }
 
-  if(seriesFilter) {
+  if (seriesFilter) {
     let stageResult = new Set<number>();
     seriesFilter.forEach(k => {
       stageResult = union(stageResult, seriesIndex.get(k)!);
@@ -58,7 +62,7 @@ export function filter({
     result = intersect(result, stageResult);
   }
 
-  if(abilityCategoryFilter) {
+  if (abilityCategoryFilter) {
     let stageResult = new Set<number>();
     abilityCategoryFilter.forEach(k => {
       stageResult = union(stageResult, abilityCategoryIndex.get(k)!);
@@ -67,14 +71,14 @@ export function filter({
   }
 
   return [...result].map(
-    id => cardLookup.get(id)!
+    id => cardLookup.get(id)!,
   ).sort(
     (a, b) => {
-      if(sortingMethod === SortingMethod.BY_STAR && a.star != b.star) {
+      if (sortingMethod === SortingMethod.BY_STAR && a.star != b.star) {
         return a.star - b.star;
       }
       return a.id - b.id;
-    }
+    },
   );
 }
 

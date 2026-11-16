@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import ConfigProvider from "./config/provider";
-import ThemeProvider from "./theme/provider";
-import { ChrononInfoProvider } from "./data/chrononInfo";
 import App from "./App";
+import ConfigProvider from "./config/provider";
+import { ChrononInfoProvider } from "./data/chrononInfo";
+import ThemeProvider from "./theme/provider";
 
 import "./index.css";
 import "@fontsource/roboto";
@@ -17,5 +17,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </ChrononInfoProvider>
       </ThemeProvider>
     </ConfigProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

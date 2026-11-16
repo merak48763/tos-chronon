@@ -1,11 +1,11 @@
-import { useState, useCallback, createContext, useContext } from "react";
-import type { PropsWithChildren, FC } from "react";
+import type { FC, PropsWithChildren } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 
 interface ConfigContextValue {
-  readonly darkMode: boolean,
-  toggleDarkMode: () => void,
-  readonly saveData: boolean,
-  toggleSaveData: () => void,
+  readonly darkMode: boolean;
+  toggleDarkMode: () => void;
+  readonly saveData: boolean;
+  toggleSaveData: () => void;
 }
 
 const ConfigContext = createContext<ConfigContextValue>({
@@ -15,7 +15,7 @@ const ConfigContext = createContext<ConfigContextValue>({
   toggleSaveData: () => {},
 });
 
-const Provider: FC<PropsWithChildren<{}>> = ({children}) => {
+const Provider: FC<PropsWithChildren<{}>> = ({ children }) => {
   const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "on");
   const toggleDarkMode = useCallback(() => {
     localStorage.setItem("darkMode", darkMode ? "off" : "on");
@@ -29,14 +29,18 @@ const Provider: FC<PropsWithChildren<{}>> = ({children}) => {
   }, [saveData]);
 
   return (
-    <ConfigContext.Provider value={{
-      darkMode, toggleDarkMode,
-      saveData, toggleSaveData
-    }}>
+    <ConfigContext.Provider
+      value={{
+        darkMode,
+        toggleDarkMode,
+        saveData,
+        toggleSaveData,
+      }}
+    >
       {children}
     </ConfigContext.Provider>
   );
-}
+};
 
 export default Provider;
 

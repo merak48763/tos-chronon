@@ -1,29 +1,31 @@
-import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
-import type { PropsWithChildren, FC } from "react";
 import axios from "axios";
+import type { FC, PropsWithChildren } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
-import { filter, computeSkillFilterId } from "./filterEngine";
+import type { FetchedCard, FetchedChrononData, FetchedSeries, StarData } from "./fetchedData";
 import type { FilterEngineParams } from "./filterEngine";
+import { computeSkillFilterId, filter } from "./filterEngine";
 import skillFilterData from "./skillFilterConfig.json";
-import type { FetchedChrononData, FetchedCard, FetchedSeries, StarData } from "./fetchedData";
 
 export interface ChrononCard extends FetchedCard, StarData {}
 export interface ChrononSeries extends Omit<FetchedSeries, "stars"> {
-  stars: Map<number, StarData>,
+  stars: Map<number, StarData>;
 }
 export type SimplifiedSeries = Pick<FetchedSeries, "id" | "name">;
 
-export const groupedSkillFilterIds = skillFilterData.groups.map((group, i) => group.map((_, j) => computeSkillFilterId(i, j)));
+export const groupedSkillFilterIds = skillFilterData.groups.map((group, i) =>
+  group.map((_, j) => computeSkillFilterId(i, j))
+);
 export const groupedSkillFilterNames = skillFilterData.groups.map(group => group.map(cell => cell.tag));
 
 interface ChrononInfoContextValue {
-  readonly ready: boolean,
-  readonly cards: ChrononCard[],
-  readonly series: SimplifiedSeries[],
-  getCardById: (id: number) => ChrononCard | undefined,
-  getSeriesNameById: (id: number) => string | undefined,
-  getSeriesMarbelById: (id: number) => string | undefined,
-  filter: (params: FilterParams) => ChrononCard[],
+  readonly ready: boolean;
+  readonly cards: ChrononCard[];
+  readonly series: SimplifiedSeries[];
+  getCardById: (id: number) => ChrononCard | undefined;
+  getSeriesNameById: (id: number) => string | undefined;
+  getSeriesMarbelById: (id: number) => string | undefined;
+  filter: (params: FilterParams) => ChrononCard[];
 }
 
 const ChrononInfoContext = createContext<ChrononInfoContextValue>({
@@ -36,9 +38,12 @@ const ChrononInfoContext = createContext<ChrononInfoContextValue>({
   filter: () => [],
 });
 
-export type FilterParams = Pick<FilterEngineParams, "seriesFilter" | "starFilter" | "abilityCategoryFilter" | "sortingMethod">;
+export type FilterParams = Pick<
+  FilterEngineParams,
+  "seriesFilter" | "starFilter" | "abilityCategoryFilter" | "sortingMethod"
+>;
 
-export const ChrononInfoProvider: FC<PropsWithChildren<{}>> = ({children}) => {
+export const ChrononInfoProvider: FC<PropsWithChildren<{}>> = ({ children }) => {
   const [ready, setReady] = useState(false);
   const [cards, setCards] = useState([] as ChrononCard[]);
   const [series, setSeries] = useState([] as SimplifiedSeries[]);
@@ -63,122 +68,132 @@ export const ChrononInfoProvider: FC<PropsWithChildren<{}>> = ({children}) => {
 
   useEffect(() => {
     axios.get<FetchedChrononData>("https://merak48763.github.io/tool_data/data/chronon.json")
-    .then(res => {
-      const modifiedCards = [] as ChrononCard[];
-      res.data.series.forEach(series => {
-        chrononSeriesRef.current.set(series.id, {
+      .then(res => {
+        const modifiedCards = [] as ChrononCard[];
+        res.data.series.forEach(series => {
+          chrononSeriesRef.current.set(series.id, {
+            id: series.id,
+            name: series.name,
+            stars: new Map(series.stars.map(starData => [starData.star, starData])),
+            marbel: series.marbel,
+          });
+        });
+        res.data.card.forEach(card => {
+          const cardCommonData = chrononSeriesRef.current.get(card.series)!.stars.get(card.star)!;
+          const modifiedCard: ChrononCard = {
+            ...card,
+            ...cardCommonData,
+          };
+          modifiedCards.push(modifiedCard);
+          chrononCardRef.current.set(card.id, modifiedCard);
+        });
+
+        const iSkillRevMap = new Map<number, Set<number>>();
+        const sSkillRevMap = new Map<number, Set<number>>();
+        const tSkillRevMap = new Map<number, Set<number>>();
+        skillFilterData.groups.forEach((group, i) => group.forEach((cell, j) => {
+          const filterId = computeSkillFilterId(i, j);
+          cell.values.i?.forEach(skillId => {
+            if (!iSkillRevMap.has(skillId)) {
+              iSkillRevMap.set(skillId, new Set());
+            }
+            iSkillRevMap.get(skillId)!.add(filterId);
+          });
+          cell.values.s?.forEach(skillId => {
+            if (!sSkillRevMap.has(skillId)) {
+              sSkillRevMap.set(skillId, new Set());
+            }
+            sSkillRevMap.get(skillId)!.add(filterId);
+          });
+          cell.values.t?.forEach(skillId => {
+            if (!tSkillRevMap.has(skillId)) {
+              tSkillRevMap.set(skillId, new Set());
+            }
+            tSkillRevMap.get(skillId)!.add(filterId);
+          });
+        }));
+
+        modifiedCards.forEach(card => {
+          if (!chrononStarIndex.current.has(card.star)) {
+            chrononStarIndex.current.set(card.star, new Set());
+          }
+          chrononStarIndex.current.get(card.star)!.add(card.id);
+
+          if (!chrononSeriesIndex.current.has(card.series)) {
+            chrononSeriesIndex.current.set(card.series, new Set());
+          }
+          chrononSeriesIndex.current.get(card.series).add(card.id);
+
+          card.instantSkill.forEach(levelSet => levelSet.forEach(instance => {
+            iSkillRevMap.get(instance.skill)?.forEach(filterId => {
+              chrononAbilityCategoryIndex.current.get(filterId)?.add(card.id);
+            });
+          }));
+          card.statusSkill.forEach(levelSet => levelSet.forEach(instance => {
+            sSkillRevMap.get(instance.skill)?.forEach(filterId => {
+              chrononAbilityCategoryIndex.current.get(filterId)?.add(card.id);
+            });
+          }));
+          card.triggeredSkill.forEach(levelSet => levelSet.forEach(instance => {
+            tSkillRevMap.get(instance.skill)?.forEach(filterId => {
+              chrononAbilityCategoryIndex.current.get(filterId)?.add(card.id);
+            });
+          }));
+        });
+
+        setCards(modifiedCards);
+        setSeries(res.data.series.map(series => ({
           id: series.id,
           name: series.name,
-          stars: new Map(series.stars.map(starData => [starData.star, starData])),
-          marbel: series.marbel
-        });
+        })));
+
+        setReady(true);
       });
-      res.data.card.forEach(card => {
-        const cardCommonData = chrononSeriesRef.current.get(card.series)!.stars.get(card.star)!;
-        const modifiedCard: ChrononCard = {
-          ...card,
-          ...cardCommonData
-        };
-        modifiedCards.push(modifiedCard);
-        chrononCardRef.current.set(card.id, modifiedCard);
-      });
-
-      const iSkillRevMap = new Map<number, Set<number>>();
-      const sSkillRevMap = new Map<number, Set<number>>();
-      const tSkillRevMap = new Map<number, Set<number>>();
-      skillFilterData.groups.forEach((group, i) => group.forEach((cell, j) => {
-        const filterId = computeSkillFilterId(i, j);
-        cell.values.i?.forEach(skillId => {
-          if(!iSkillRevMap.has(skillId)) {
-            iSkillRevMap.set(skillId, new Set());
-          }
-          iSkillRevMap.get(skillId)!.add(filterId);
-        });
-        cell.values.s?.forEach(skillId => {
-          if(!sSkillRevMap.has(skillId)) {
-            sSkillRevMap.set(skillId, new Set());
-          }
-          sSkillRevMap.get(skillId)!.add(filterId);
-        });
-        cell.values.t?.forEach(skillId => {
-          if(!tSkillRevMap.has(skillId)) {
-            tSkillRevMap.set(skillId, new Set());
-          }
-          tSkillRevMap.get(skillId)!.add(filterId);
-        });
-      }));
-
-      modifiedCards.forEach(card => {
-        if(!chrononStarIndex.current.has(card.star)) {
-          chrononStarIndex.current.set(card.star, new Set());
-        }
-        chrononStarIndex.current.get(card.star)!.add(card.id);
-
-        if(!chrononSeriesIndex.current.has(card.series)) {
-          chrononSeriesIndex.current.set(card.series, new Set());
-        }
-        chrononSeriesIndex.current.get(card.series).add(card.id);
-
-        card.instantSkill.forEach(levelSet => levelSet.forEach(instance => {
-          iSkillRevMap.get(instance.skill)?.forEach(filterId => {
-            chrononAbilityCategoryIndex.current.get(filterId)?.add(card.id);
-          });
-        }));
-        card.statusSkill.forEach(levelSet => levelSet.forEach(instance => {
-          sSkillRevMap.get(instance.skill)?.forEach(filterId => {
-            chrononAbilityCategoryIndex.current.get(filterId)?.add(card.id);
-          });
-        }));
-        card.triggeredSkill.forEach(levelSet => levelSet.forEach(instance => {
-          tSkillRevMap.get(instance.skill)?.forEach(filterId => {
-            chrononAbilityCategoryIndex.current.get(filterId)?.add(card.id);
-          });
-        }));
-      });
-
-      setCards(modifiedCards);
-      setSeries(res.data.series.map(series => ({
-        id: series.id,
-        name: series.name
-      })));
-
-      setReady(true);
-    });
   }, []);
 
   const getCardById = useCallback(
-    (id: number) => chrononCardRef.current.get(id), []
+    (id: number) => chrononCardRef.current.get(id),
+    [],
   );
   const getSeriesNameById = useCallback(
-    (id: number) => chrononSeriesRef.current.get(id)?.name, []
+    (id: number) => chrononSeriesRef.current.get(id)?.name,
+    [],
   );
   const getSeriesMarbelById = useCallback(
-    (id: number) => chrononSeriesRef.current.get(id)?.marbel, []
+    (id: number) => chrononSeriesRef.current.get(id)?.marbel,
+    [],
   );
 
   const cardFilter = useCallback(
-    ({seriesFilter, starFilter, abilityCategoryFilter, sortingMethod}: FilterParams) => filter({
+    ({ seriesFilter, starFilter, abilityCategoryFilter, sortingMethod }: FilterParams) => filter({
       universe: cards.map(c => c.id),
-      seriesFilter, seriesIndex: chrononSeriesIndex.current,
-      starFilter, starIndex: chrononStarIndex.current,
-      abilityCategoryFilter, abilityCategoryIndex: chrononAbilityCategoryIndex.current,
-      sortingMethod, cardLookup: chrononCardRef.current,
-    }), [cards]
+      seriesFilter,
+      seriesIndex: chrononSeriesIndex.current,
+      starFilter,
+      starIndex: chrononStarIndex.current,
+      abilityCategoryFilter,
+      abilityCategoryIndex: chrononAbilityCategoryIndex.current,
+      sortingMethod,
+      cardLookup: chrononCardRef.current,
+    }),
+    [cards],
   );
 
   return (
-    <ChrononInfoContext.Provider value={{
-      ready,
-      cards,
-      series,
-      getCardById,
-      getSeriesNameById,
-      getSeriesMarbelById,
-      filter: cardFilter,
-    }}>
+    <ChrononInfoContext.Provider
+      value={{
+        ready,
+        cards,
+        series,
+        getCardById,
+        getSeriesNameById,
+        getSeriesMarbelById,
+        filter: cardFilter,
+      }}
+    >
       {children}
     </ChrononInfoContext.Provider>
   );
-}
+};
 
 export const useChrononInfo = () => useContext(ChrononInfoContext);
