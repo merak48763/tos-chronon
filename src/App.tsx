@@ -58,7 +58,8 @@ function App() {
   const [abilityCategoryFilter, setAbilityCategoryFilter] = useState([] as number[]);
   const [abilityCategoryFilterActive, setAbilityCategoryFilterActive] = useState(false);
 
-  const [sortingMethod, setSortingMethod] = useState(SortingMethod.BY_ID);
+  // TODO: sorting option
+  const [sortingMethod, _setSortingMethod] = useState(SortingMethod.BY_ID);
 
   const filteredCards = useMemo(() => filter({
     seriesFilter: (seriesFilter.length > 0 && seriesFilterActive) ? seriesFilter : undefined,
