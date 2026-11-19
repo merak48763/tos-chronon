@@ -66,6 +66,13 @@ const ISTranslator = new Map<number, TranslatorFunction>([
   [25, ([v0, v1]) => <>{A(v1)}屬性成員技能 CD -{v0}</>],
   [26, ([v0, v1, v2]) => <>{A(v1)}及{A(v2)}屬性成員技能 CD -{v0}</>],
   [27, ([v0]) => <>所有成員技能 CD -{v0}</>],
+  [28, () => "解除自身拘束狀態"],
+  [29, () => "解除自身魂離狀態"],
+  [30, () => "解除自身封脈狀態"],
+  [31, ([v0]) => <>當前生命力變為 {v0}%</>],
+  [32, ([v0]) => <>該回合增加 {v0} 連擊 (Ex. Combo)</>],
+  [33, ([v0]) => <>該回合增加 {v0} 連擊 (Ex. Combo、Combo)</>],
+  [34, () => "解除我方「囚錮生命力上限」"],
 ]);
 function instantSkillDesc(skillId: number, args?: ReactNode[]) {
   // .map(N): ugly but working patch
@@ -142,6 +149,12 @@ const SSTranslator = new Map<number, TranslatorFunction>([
   [62, () => "自身無視「敵人減傷狀態」"],
   [63, () => "自身無視「首殺盾」"],
   [64, () => "自身無視「力的印記」"],
+  [65, () => "自身無視「累積符石盾」"],
+  [67, () => "自身以外成員不能發動攻擊"],
+  [68, ([v0]) => <>增加 {v0} 連擊 (Ex. Combo)</>],
+  [69, ([v0]) => <>增加 {v0} 連擊 (Ex. Combo、Combo)</>],
+  [70, ([v0]) => <>當前生命力變為 {v0}%</>],
+  [71, ([v0]) => <>所受傷害減至 {v0}%</>],
 ]);
 function statusSkillDesc(skillId: number, args?: ReactNode[]) {
   // .map(N): ugly but working patch
@@ -210,6 +223,12 @@ const TSTranslator = new Map<number, TranslatorFunction>([
   [43, () => "自身無視「敵人減傷狀態」"],
   [44, () => "自身無視「首殺盾」"],
   [45, () => "自身無視「力的印記」"],
+  [46, () => "自身無視「累積符石盾」"],
+  [48, () => "自身以外成員不能發動攻擊"],
+  [49, ([v0]) => <>增加 {v0} 連擊 (Ex. Combo)</>],
+  [50, ([v0]) => <>回合結束時，當前生命力變為 {v0}%</>],
+  [51, ([v0]) => <>增加 {v0} 連擊 (Combo)</>],
+  [52, ([v0]) => <>增加 {v0} 連擊 (Ex. Combo、Combo)</>],
 ]);
 export function triggeredSkillDesc(skillId: number, args?: ReactNode[]) {
   return TSTranslator.get(skillId)?.(args ?? []) ?? `CT_SKILL_TRIGGERED_${skillId}`;
